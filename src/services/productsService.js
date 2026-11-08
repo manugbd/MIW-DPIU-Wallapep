@@ -1,4 +1,4 @@
-const productRequest = async (path, options) => {
+const productRequest = async (path, options = {}) => {
   let response;
 
   try {
@@ -53,7 +53,7 @@ export const createProduct = (values) =>
 
 export const uploadProductImage = (productId, image) => {
   const body = new FormData();
-  
+
   body.append("image", image);
 
   return productRequest(`/products/${productId}/image`, {

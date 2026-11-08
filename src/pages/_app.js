@@ -54,13 +54,9 @@ export default function App({ Component, pageProps }) {
             let jsonData = await response.json();
             setLogin(jsonData.activeApiKey)
 
-            if (!jsonData.activeApiKey){
-                router.push("/login")
-            }
             return(jsonData.activeApiKey)
         } else {
             setLogin(false)
-            router.push("/login")
             return (false)
         }
     }
@@ -108,7 +104,8 @@ export default function App({ Component, pageProps }) {
                 <Col xs= {18} sm={19} md={20} lg={21} xl = {22}>
                 {!login &&
                     <Menu theme="dark" mode="horizontal" items={ [
-                        { key:"logo",  label: <img src="/logo.png" width="40" height="40" />},
+                        { key:"logo", label: <Link href="/" aria-label="Wallapep home"><img src="/logo.png" alt="Wallapep" width="40" height="40" /></Link>},
+                        { key:"menuHome", label: <Link href="/">Home</Link>},
                         { key:"menuLogin",  icon: <LoginOutlined/>, label: <Link href="/login">Login</Link>},
                         { key:"menuRegister",  label: <Link href="/register">Register</Link>},
                     ]} >
@@ -116,7 +113,8 @@ export default function App({ Component, pageProps }) {
                 }
                 {login &&
                     <Menu theme="dark" mode="horizontal" items={ [
-                        { key:"logo",  label: <img src="/logo.png" width="40" height="40" />},
+                        { key:"logo", label: <Link href="/" aria-label="Wallapep home"><img src="/logo.png" alt="Wallapep" width="40" height="40" /></Link>},
+                        { key:"menuHome", label: <Link href="/">Home</Link>},
                         { key:"menuProducts",  label: <Link href="/products">Products</Link>},
                         { key:"menuCreateProduct",  label: <Link href="/createProduct">Sell</Link>},
                         { key:"menuMyProduct", label: <Link href="/myProducts">My Products</Link> },
@@ -138,8 +136,8 @@ export default function App({ Component, pageProps }) {
                 </Col>
             </Row>
           </Header>
-          <Content style={{ padding: "20px 50px" }}>
-              <Component {...pageProps} setLogin={setLogin} openNotification={openNotification} />
+          <Content style={{ padding: "20px clamp(16px, 4vw, 50px)" }}>
+              <Component {...pageProps} isLoggedIn={login} setLogin={setLogin} openNotification={openNotification} />
           </Content>
           <Footer style={{ textAlign: "center" }}> Wallapep </Footer>
       </Layout>
