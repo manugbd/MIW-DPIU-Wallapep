@@ -1,78 +1,91 @@
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Card, Col, Row } from 'antd';
+import { Alert, Button, Empty } from "antd";
+import ListPagination from "@/components/ListPagination";
+import ProductFilters from "@/components/products/ProductFilters";
+import ActiveProductFilters from "@/components/products/ActiveProductFilters";
+import ProductGrid from "@/components/products/ProductGrid";
+import { useProductSearch } from "@/hooks/useProductSearch";
+import { getActiveProductFilters } from "@/utils/UtilsProductFilters";
+import styles from "@/styles/Products.module.css";
 
-let ListProductsComponent = () => {
-  let [products, setProducts] = useState([]);
-
-  useEffect(() => {
-    getProducts();
-  }, []);
-
-
-  let checkURL = async (url) => {
-      try {
-          let response = await fetch(url);
-          console.log(response.ok)
-          return response.ok; // Returns true if the status is in the 200-299 range.
-      } catch (error) {
-          return false; // URL does not exist or there was an error.
-      }
-  }
-
-
-  let getProducts = async () => {
-    let response = await fetch(
-      process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/products",
-      {
-        method: "GET",
-        headers: {
-          apikey: localStorage.getItem("apiKey"),
-        },
-      }
-    );
-
-    if (response.ok) {
-      let jsonData = await response.json();
-
-      let promisesForImages = jsonData.map( async p =>  {
-          let urlImage = process.env.NEXT_PUBLIC_BACKEND_BASE_URL+"/images/"+p.id+".png"
-          let existsImage = await checkURL(urlImage);
-          if ( existsImage )
-              p.image = urlImage
-          else
-              p.image = "/imageMockup.png"
-          return p
-      })
-
-      let productsWithImage = await Promise.all(promisesForImages)
-      setProducts(productsWithImage)
-
-    } else {
-      let responseBody = await response.json();
-      let serverErrors = responseBody.errors;
-      serverErrors.forEach((e) => {
-        console.log("Error: " + e.msg);
-      });
-    }
-  };
+export default function ListProductsComponent() {
+  const search = useProductSearch();
+  const hasFilters = getActiveProductFilters(search.filters).length > 0;
 
   return (
-    <div>
-      <h2>Products</h2>
-      <Row gutter={ [16, 16] } >
-            { products.map( p =>
-                <Col span={8} >
-                   <Link href={`detailProduct/${p.id}`}>
-                      <Card key={p.id} title={ p.title }   cover={ <img src= { p.image } /> }>
-                          { p.price } 
-                      </Card>
-                    </Link>
-                </Col>
-             )}
-      </Row>
-    </div>
-  );
-};
+    <section className={styles.page} aria-labelledby="products-heading">
+      <header className={styles.heading}>
+        <h1 id="products-heading">Products</h1>
+        <p>Find your next second-hand discovery.</p>
+      </header>
 
-export default ListProductsComponent;
+      <ProductFilters
+        filters={search.filters}
+        categoryOptions={search.categoryOptions}
+        onSearch={search.applyFilters}
+        onReset={search.clearFilters}
+      />
+
+      <ActiveProductFilters
+        filters={search.filters}
+        onRemove={search.removeFilter}
+      />
+
+      {search.error ? (
+        <Alert
+          className={styles.feedback}
+          type="error"
+          showIcon
+          message="Products could not be loaded"
+          description={search.error}
+          action={<Button onClick={search.retry}>Try again</Button>}
+        />
+      ) : search.loading ? (
+        <>
+          <p role="status" className={styles.resultsSummary}>
+            Loading products…
+          </p>
+          <ProductGrid products={[]} loading />
+        </>
+      ) : (
+        <>
+          <p role="status" aria-live="polite" className={styles.resultsSummary}>
+            {search.resultCount}{" "}
+            {search.resultCount === 1 ? "product" : "products"} found
+            {search.resultCount !== search.total
+              ? ` out of ${search.total}`
+              : ""}
+          </p>
+          
+          {search.resultCount > 0 ? (
+            <>
+              <ProductGrid products={search.visibleProducts} />
+              <ListPagination pagination={search.pagination} />
+            </>
+          ) : (
+            <div className={styles.empty}>
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  hasFilters || search.total > 0
+                    ? "No products match your search. Try a broader title, another category or a wider price range."
+                    : "No products have been listed yet."
+                }
+              >
+                {hasFilters || search.total > 0 ? (
+                  <Button type="primary" onClick={search.clearFilters}>
+                    Clear filters
+                  </Button>
+                ) : (
+                  <Link href="/createProduct">
+                    <Button type="primary">Sell a product</Button>
+                  </Link>
+                )}
+              </Empty>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
+}

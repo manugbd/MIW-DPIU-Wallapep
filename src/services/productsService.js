@@ -51,6 +51,15 @@ export const createProduct = (values) =>
     }),
   });
 
+export const getProducts = async (signal) => {
+  const products = await productRequest("/products", { method: "GET", signal });
+
+  if (!Array.isArray(products))
+    throw new Error("The server returned an unexpected product list. Please try again.");
+  
+  return products;
+};
+
 export const uploadProductImage = (productId, image) => {
   const body = new FormData();
 
