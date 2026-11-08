@@ -7,7 +7,7 @@ export default function DetailsProductPage() {
 
   return (
     <div>
-      <DetailsProductComponent id = {id}/>
+      <DetailsProductComponent key={id} id={id}/>
     </div>
   );
 }

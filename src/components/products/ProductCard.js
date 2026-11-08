@@ -1,10 +1,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Card } from "antd";
-import {
-  formatProductPrice,
-  getProductImageUrl,
-} from "@/utils/UtilsProductDisplay";
+import { ArrowRightOutlined } from "@ant-design/icons";
+import { formatProductPrice, getProductImageUrl} from "@/utils/UtilsProductDisplay";
 import styles from "@/styles/Products.module.css";
 
 export default function ProductCard({ product }) {
@@ -14,7 +12,6 @@ export default function ProductCard({ product }) {
   return (
     <Link href={`/detailProduct/${product.id}`} className={styles.productLink}>
       <Card
-        hoverable
         className={styles.productCard}
         cover={
           <img
@@ -41,6 +38,12 @@ export default function ProductCard({ product }) {
           {product.description || "No description provided."}
         </p>
       </Card>
+      <div className={styles.productAction} aria-hidden="true">
+        <span>
+          View product
+          <ArrowRightOutlined />
+        </span>
+      </div>
     </Link>
   );
 }

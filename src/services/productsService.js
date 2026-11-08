@@ -33,6 +33,7 @@ const productRequest = async (path, options = {}) => {
         name: item.field,
         errors: [item.msg || "Check this value."],
       }));
+    error.status = response.status;
     throw error;
   }
 
@@ -58,6 +59,17 @@ export const getProducts = async (signal) => {
     throw new Error("The server returned an unexpected product list. Please try again.");
   
   return products;
+};
+
+export const getProduct = async (id, signal) => {
+  const product = await productRequest(`/products/${encodeURIComponent(id)}`, {
+    method: "GET",
+    signal,
+  });
+
+  if (!product?.id) throw new Error("This product could not be found.");
+
+  return product;
 };
 
 export const uploadProductImage = (productId, image) => {

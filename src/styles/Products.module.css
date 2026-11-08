@@ -64,18 +64,116 @@
 }
 .productLink,
 .productLink:hover {
+  position: relative;
+  z-index: 1;
   display: block;
   height: 100%;
   color: inherit;
   border-radius: 8px;
+  transition: transform 160ms ease;
 }
 .productLink:focus-visible {
   outline: 3px solid #1677ff;
   outline-offset: 4px;
 }
 .productCard {
+  position: relative;
   height: 100%;
   overflow: hidden;
+}
+.productAction {
+  position: absolute;
+  top: calc(100% - 4px);
+  left: 0;
+  right: 0;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    visibility 160ms ease;
+}
+.productAction span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #1677ff;
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.productLink:focus-visible {
+  z-index: 2;
+  transform: translateY(-4px) scale(1.02);
+  filter: drop-shadow(0 8px 12px #00000024);
+}
+.productLink:focus-visible .productCard {
+  border-bottom-color: transparent;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.productLink:focus-visible .productAction {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+@media (hover: hover) and (pointer: fine) {
+  .productLink:hover {
+    z-index: 2;
+    transform: translateY(-4px) scale(1.02);
+    filter: drop-shadow(0 8px 12px #00000024);
+  }
+  .productLink:hover .productCard {
+    border-bottom-color: transparent;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .productLink:hover .productAction {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+}
+@media (hover: none) {
+  .productLink {
+    display: flex;
+    flex-direction: column;
+  }
+  .productCard {
+    height: auto;
+    flex: 1;
+    border-bottom-color: transparent;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .productAction {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .productLink,
+  .productAction {
+    transition: none;
+  }
+  .productLink:hover,
+  .productLink:focus-visible {
+    transform: none;
+  }
 }
 .productImage {
   width: 100%;

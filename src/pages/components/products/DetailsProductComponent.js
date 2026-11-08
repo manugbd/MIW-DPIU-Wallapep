@@ -1,97 +1,153 @@
-import {useState, useEffect } from "react";
-import { Typography, Card, Descriptions, Image, Button  } from 'antd';
-import { ShoppingOutlined } from '@ant-design/icons';
+import Head from "next/head";
+import Link from "next/link";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Image,
+  Modal,
+  Row,
+  Skeleton,
+  Tag,
+} from "antd";
+import { ArrowLeftOutlined, ShoppingOutlined } from "@ant-design/icons";
+import { useProductDetails } from "@/hooks/useProductDetails";
+import { useProductPurchase } from "@/hooks/useProductPurchase";
+import { formatProductPrice, getProductImageUrl} from "@/utils/UtilsProductDisplay";
+import styles from "@/styles/ProductDetails.module.css";
 
-let DetailsProductComponent  = ({id}) => {
-    let [product, setProduct] = useState({})
+export default function DetailsProductComponent({ id }) {
+  const details = useProductDetails(id);
+  const { product } = details;
+  const purchase = useProductPurchase({ product, onPurchased: details.markPurchased, onRefresh: details.refresh });
 
-    useEffect(() => {
-        getProduct(id);
-    }, [])
+  return (
+    <section className={styles.page} aria-label="Product details">
+      <Link href="/products" className={styles.backLink}>
+        <ArrowLeftOutlined /> Back to products
+      </Link>
+      {details.loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 6 }} />
+        </Card>
+      ) : details.error ? (
+        <Alert
+          type="error"
+          showIcon
+          message="Product could not be loaded"
+          description={details.error}
+          action={<Button onClick={details.refresh}>Try again</Button>}
+        />
+      ) : (
+        product && (
+          <>
+            <Head>
+              <title>{product.title} | Wallapep</title>
+            </Head>
 
-    let buyProduct = async () => {
-        let response = await fetch(
-            process.env.NEXT_PUBLIC_BACKEND_BASE_URL+"/transactions/",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type" : "application/json ",
-                    "apikey": localStorage.getItem("apiKey")
-                },
-                body: JSON.stringify({
-                    productId: id
-                })
-            });
+            {purchase.transactionId && (
+              <Alert
+                className={styles.feedback}
+                type="success"
+                showIcon
+                role="status"
+                message="Purchase complete"
+                description={`You bought ${product.title} for ${formatProductPrice(product.price)}. Your transaction reference is #${purchase.transactionId}.`}
+              />
+            )}
+            {purchase.error && !purchase.confirmOpen && (
+              <Alert
+                className={styles.feedback}
+                type="error"
+                showIcon
+                role="alert"
+                message="Purchase could not be completed"
+                description={purchase.error}
+              />
+            )}
 
-        if ( response.ok ){
-            let jsonData = await response.json();
-            if (jsonData.affectedRows == 1){
+            <Card>
+              <Row gutter={[32, 24]}>
+                <Col xs={24} md={10}>
+                  <Image
+                    src={getProductImageUrl(product.id)}
+                    alt={product.title}
+                    fallback="/imageMockup.png"
+                    width="100%"
+                    style={{ maxHeight: 420, objectFit: "contain" }}
+                  />
+                </Col>
 
-            }
-        } else {
-            let responseBody = await response.json();
-            let serverErrors = responseBody.errors;
-            serverErrors.forEach( e => {
-                console.log("Error: "+e.msg)
-            })
-        }
-    }
+                <Col xs={24} md={14}>
+                  <div className={styles.tags}>
+                    <Tag>{product.category || "Uncategorised"}</Tag>
+                    {product.buyerId != null && <Tag>Sold</Tag>}
+                  </div>
 
+                  <h1 className={styles.title}>{product.title}</h1>
+                  <p className={styles.price}>
+                    {formatProductPrice(product.price)}
+                  </p>
+                  <h2 className={styles.descriptionHeading}>Description</h2>
+                  <p className={styles.description}>
+                    {product.description || "No description provided."}
+                  </p>
 
-    let getProduct = async (id) => {
-         let response = await fetch(
-            process.env.NEXT_PUBLIC_BACKEND_BASE_URL+"/products/"+id,
-            {
-                method: "GET",
-                headers: {
-                    "apikey": localStorage.getItem("apiKey")
-                },
-            });
+                  <Button
+                    type="primary"
+                    size="large"
+                    block
+                    icon={<ShoppingOutlined />}
+                    disabled={
+                      !purchase.availability.available ||
+                      Boolean(purchase.transactionId)
+                    }
+                    loading={purchase.purchasing}
+                    onClick={purchase.openConfirmation}
+                  >
+                    {purchase.availability.label}
+                  </Button>
+                  
+                  {!purchase.transactionId && purchase.availability.reason && (
+                    <p className={styles.reason}>
+                      {purchase.availability.reason}
+                    </p>
+                  )}
+                </Col>
+              </Row>
+            </Card>
 
-        if ( response.ok ){
-            let jsonData = await response.json();
-            setProduct(jsonData)
-        } else {
-            let responseBody = await response.json();
-            let serverErrors = responseBody.errors;
-            serverErrors.forEach( e => {
-                console.log("Error: "+e.msg)
-            })
-        }
-    }
-
-    const { Text } = Typography;
-    let labelProductPrice = "No-Oferta"
-    if ( product.price < 10000){
-        labelProductPrice="Oferta"
-    }
-
-
-    return (
-    <Card>
-        <Image src="/item1.png" />
-        <Descriptions title={ product.title }>
-            <Descriptions.Item label="Id">
-                { product.id }
-            </Descriptions.Item>
-            <Descriptions.Item label="Description">
-                { product.description }
-            </Descriptions.Item>
-            <Descriptions.Item >
-                <Text strong underline style={{ fontSize:20 }}>{ product.price }</Text>
-                { labelProductPrice }
-            </Descriptions.Item>
-                <Descriptions.Item>
-                <Button type="primary" onClick={buyProduct}
-                        icon={<ShoppingOutlined/>} size="large">
-                    Buy
-                </Button>
-            </Descriptions.Item>
-
-        </Descriptions>
-    </Card>
-
-    )
+            <Modal
+              title="Confirm purchase"
+              open={purchase.confirmOpen}
+              onOk={purchase.confirmPurchase}
+              onCancel={purchase.closeConfirmation}
+              confirmLoading={purchase.purchasing}
+              okText="Confirm purchase"
+              cancelText="Cancel"
+              cancelButtonProps={{ disabled: purchase.purchasing }}
+              closable={!purchase.purchasing}
+              keyboard={!purchase.purchasing}
+              maskClosable={!purchase.purchasing}
+            >
+              <p>Do you want to buy this product?</p>
+              <p className={styles.confirmTitle}>{product.title}</p>
+              <p className={styles.price}>
+                {formatProductPrice(product.price)}
+              </p>
+              {purchase.error && (
+                <Alert
+                  type="error"
+                  showIcon
+                  role="alert"
+                  message={purchase.error}
+                />
+              )}
+            </Modal>
+          </>
+        )
+      )}
+    </section>
+  );
 }
-
-export default DetailsProductComponent;
