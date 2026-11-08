@@ -1,3 +1,20 @@
+import dayjs from "dayjs";
+
+export const validateDateNotInFuture = (
+    value,
+    { invalidMessage = "Enter a valid date.", futureMessage = "The date cannot be in the future." } = {},
+) => {
+    if (!dayjs.isDayjs(value) || !value.isValid()) {
+        return Promise.reject(new Error(invalidMessage));
+    }
+    if (value.isAfter(dayjs(), "day")) {
+        return Promise.reject(new Error(futureMessage));
+    }
+    return Promise.resolve();
+};
+
+export const isDateInFuture = (value) => dayjs.isDayjs(value) && value.isAfter(dayjs(), "day");
+
 export let validateFormDataInputRequired =
     (formData, inputKey, formErrors, setFormErrors) => {
 
@@ -87,4 +104,5 @@ export let joinAllServerErrorMessages = (serverErrors) => {
     }
     return generalErrorMessage
 }
+
 
