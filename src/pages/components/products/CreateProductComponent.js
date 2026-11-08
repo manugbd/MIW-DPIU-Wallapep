@@ -1,8 +1,9 @@
 import {useState} from "react";
-import {modifyStateProperty} from "../../../utils/UtilsState";
-import {Card, Input, Button, Row, Col, Form, Typography, Upload } from "antd";
+import {modifyStateProperty} from "@/utils/UtilsState";
+import {Card, Input, Button, Row, Col, Form, Typography, Upload, Radio } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import { actions } from "../../../reducers/reducerCountSlice"
+import { actions } from "@/reducers/reducerCountSlice"
+import { PRODUCT_CATEGORY_OPTIONS, isProductCategory } from "@/models/ProductCategories";
 
 let CreateProductComponent = () => {
     const countGlobalState1 = useSelector(state => state.reducerCount);
@@ -10,8 +11,18 @@ let CreateProductComponent = () => {
     const dispatch = useDispatch();
 
     let [formData, setFormData] = useState({})
+    const [categoryError, setCategoryError] = useState("");
+
+    const changeCategory = event => {
+        modifyStateProperty(formData, setFormData, "category", event.target.value);
+        setCategoryError("");
+    };
 
     let clickCreateProduct = async () => {
+        if (!isProductCategory(formData.category)) {
+            setCategoryError("Selecciona una categoría para el producto.");
+            return;
+        }
         let response = await fetch(
             process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/products",{
             method: "POST",
@@ -96,6 +107,23 @@ let CreateProductComponent = () => {
                             (i) => modifyStateProperty(
                                 formData, setFormData, "price", i.currentTarget.value)}
                                size="large" type="number" placeholder="price"></Input>
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Categoría"
+                        required
+                        labelCol={{ span: 24 }}
+                        wrapperCol={{ span: 24 }}
+                        validateStatus={categoryError ? "error" : undefined}
+                        help={categoryError || "Elige una de las siete categorías."}
+                    >
+                        <Radio.Group
+                            aria-label="Categoría del producto"
+                            value={formData.category}
+                            onChange={changeCategory}
+                            options={PRODUCT_CATEGORY_OPTIONS}
+                            style={{ display: "flex", flexWrap: "wrap", gap: 12 }}
+                        />
                     </Form.Item>
 
                     <Form.Item name="image">
