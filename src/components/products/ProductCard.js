@@ -1,3 +1,5 @@
+import { useRouter } from "next/router";
+import { isProductSurfaceClick } from "@/utils/UtilsProductNavigation";
 import { useState } from "react";
 import Link from "next/link";
 import { Alert, Button, Card } from "antd";
@@ -11,6 +13,7 @@ import {
 import styles from "@/styles/Products.module.css";
 
 export default function ProductCard({ product }) {
+  const router = useRouter();
   const [imageFailed, setImageFailed] = useState(false), [sold, setSold] = useState(false);
     
   const purchase = useProductPurchase({
@@ -27,6 +30,10 @@ export default function ProductCard({ product }) {
   return (
     <Card
       className={styles.productCard}
+      hoverable
+      onClick={(event) => {
+        if (isProductSurfaceClick(event)) void router.push(`/detailProduct/${product.id}`);
+      }}
       cover={
         <Link href={`/detailProduct/${product.id}`}>
           <img

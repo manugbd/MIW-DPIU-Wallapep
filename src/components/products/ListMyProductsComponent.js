@@ -1,3 +1,5 @@
+import { useRouter } from "next/router";
+import { isProductSurfaceClick } from "@/utils/UtilsProductNavigation";
 import ProductRowActions from "@/components/products/ProductRowActions";
 import styles from "@/styles/MyProducts.module.css";
 import { useMyProducts } from "@/hooks/useMyProducts";
@@ -19,6 +21,7 @@ import { PRODUCT_CATEGORY_OPTIONS } from "@/models/ProductCategories";
 import UserIdentity from "@/components/users/UserIdentity";
 
 export default function ListMyProductsComponent() {
+  const router = useRouter();
 
   const {
     products,
@@ -144,9 +147,13 @@ export default function ListMyProductsComponent() {
   return (
     <section>
       <header className={styles.heading}>
-        <h1><ShopOutlined /> My products</h1>
+        <h1>
+          <ShopOutlined /> My products
+        </h1>
         <Link href="/createProduct">
-          <Button type="primary" icon={<PlusOutlined />}>Add product</Button>
+          <Button type="primary" icon={<PlusOutlined />}>
+            Add product
+          </Button>
         </Link>
       </header>
 
@@ -158,7 +165,7 @@ export default function ListMyProductsComponent() {
           action={<Button onClick={load}>Refresh</Button>}
         />
       )}
-      
+
       <Space
         wrap
         style={{
@@ -242,11 +249,18 @@ export default function ListMyProductsComponent() {
       <p role="status">
         {filtered.length} products out of {products.length}
       </p>
-      
+
       <Table
         className={styles.table}
         sticky
         rowKey="id"
+        onRow={(product) => ({
+          style: { cursor: "pointer" },
+          onClick: (event) => {
+            if (isProductSurfaceClick(event))
+              void router.push(`/detailProduct/${product.id}`);
+          },
+        })}
         loading={loading}
         columns={columns}
         dataSource={filtered}

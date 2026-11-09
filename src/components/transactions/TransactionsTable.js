@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Button, Table, Tag } from "antd";
-import { FileTextOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Table, Tag } from "antd";
+import { MoreOutlined } from "@ant-design/icons";
 import UserIdentity from "@/components/users/UserIdentity";
 import {
   formatTransactionAmount,
@@ -14,8 +14,16 @@ const getColumns = (userId, sort, onDetails, publicView) => {
 
   return [
     {
-      title: "Product",
+      title: "Reference",
+      key: "id",
+      width: 110,
       fixed: "left",
+      sorter: true,
+      sortOrder: sortOrder("id"),
+      render: (_, row) => `#${getTransactionId(row)}`,
+    },
+    {
+      title: "Product",
       dataIndex: "title",
       key: "title",
       width: 230,
@@ -84,26 +92,29 @@ const getColumns = (userId, sort, onDetails, publicView) => {
       render: formatTransactionDate,
     },
     {
-      title: "Reference",
-      key: "id",
-      width: 110,
-      responsive: ["md"],
-      sorter: true,
-      sortOrder: sortOrder("id"),
-      render: (_, row) => `#${getTransactionId(row)}`,
-    },
-    {
-      title: "Details",
+      title: "Actions",
       key: "actions",
-      width: 105,
+      width: 100,
+      align: "right",
       render: (_, row) => (
-        <Button
-          icon={<FileTextOutlined />}
-          onClick={() => onDetails(row)}
-          aria-label={`View transaction ${getTransactionId(row)} details`}
+        <Dropdown
+          trigger={["hover", "click"]}
+          menu={{
+            items: [
+              {
+                key: "product",
+                label: <Link href={`/detailProduct/${row.productId}`}>View product</Link>,
+              },
+              { key: "details", label: "Transaction details", onClick: () => onDetails(row) },
+            ],
+          }}
         >
-          Details
-        </Button>
+          <Button
+            type="text"
+            icon={<MoreOutlined />}
+            aria-label={`Actions for transaction ${getTransactionId(row)}`}
+          />
+        </Dropdown>
       ),
     },
   ]

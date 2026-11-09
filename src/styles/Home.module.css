@@ -2,12 +2,12 @@
   --background: var(--surface-muted);
   --foreground: var(--surface);
 
-  --text-primary: var(--text-strong);
-  --text-secondary: var(--text-muted);
+  --text-primary: var(--text-heading);
+  --text-secondary: #595959;
 
-  --button-primary-hover: var(--action-hover);
+  --button-primary-hover: #4096ff;
   --button-secondary-hover: var(--surface-hover);
-  --button-secondary-border: var(--border-subtle);
+  --button-secondary-border: var(--border);
 
   width: 100%;
   margin-inline: auto;
@@ -16,7 +16,7 @@
   justify-content: center;
   font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
   color: var(--text-primary);
-  background-color: var(--background);
+  background-color: var(--surface);
 }
 
 .page p {
@@ -83,8 +83,8 @@
 }
 
 .ctas .primary {
-  background: var(--text-primary);
-  color: var(--background);
+  background: var(--primary);
+  color: var(--surface);
   gap: 8px;
 }
 
@@ -131,7 +131,8 @@
   flex: 0 0 40px;
   height: 40px;
   font-size: 24px;
-  background: var(--background);
+  background: var(--avatar-bg);
+  color: var(--primary);
   border-radius: 8px;
 }
 .category h3 {
@@ -148,7 +149,7 @@
 }
 .category:focus-visible,
 .ctas a:focus-visible {
-  outline: 2px solid var(--text-primary);
+  outline: 2px solid var(--primary);
   outline-offset: 4px;
 }
 
@@ -161,11 +162,11 @@
 
   .ctas .secondary:hover {
     background: var(--button-secondary-hover);
-    border-color: transparent;
+    border-color: var(--primary);
   }
 
   .category:hover {
-    border-color: var(--text-secondary);
+    border-color: var(--primary);
   }
 }
 
