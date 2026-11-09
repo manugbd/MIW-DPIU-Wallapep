@@ -1,5 +1,6 @@
+import styles from "@/styles/Transactions.module.css";
 import Link from "next/link";
-import { Button, Descriptions, Modal, Tag, Typography } from "antd";
+import { Button, Descriptions, Divider, Modal, Tag, Typography } from "antd";
 import UserIdentity from "@/components/users/UserIdentity";
 import {
   formatTransactionAmount,
@@ -26,7 +27,9 @@ export default function TransactionDetails({ transaction, userId, onClose }) {
     >
       {transaction && (
         <>
-          <Typography.Title level={5}>Purchase summary</Typography.Title>
+          <Typography.Title level={5} className={styles.detailSectionTitle}>
+            Purchase summary
+          </Typography.Title>
           <Descriptions
             layout="vertical"
             column={{
@@ -49,7 +52,10 @@ export default function TransactionDetails({ transaction, userId, onClose }) {
               {transaction.category || "Not specified"}
             </Descriptions.Item>
           </Descriptions>
-          <Typography.Title level={5}>Participants</Typography.Title>
+          <Divider className={styles.detailDivider} />
+          <Typography.Title level={5} className={styles.detailSectionTitle}>
+            Participants
+          </Typography.Title>
           <Descriptions
             layout="vertical"
             column={{
@@ -72,7 +78,10 @@ export default function TransactionDetails({ transaction, userId, onClose }) {
               />
             </Descriptions.Item>
           </Descriptions>
-          <Typography.Title level={5}>Dates and payment</Typography.Title>
+          <Divider className={styles.detailDivider} />
+          <Typography.Title level={5} className={styles.detailSectionTitle}>
+            Dates and payment
+          </Typography.Title>
           <Descriptions
             layout="vertical"
             column={{
@@ -92,7 +101,8 @@ export default function TransactionDetails({ transaction, userId, onClose }) {
                 : "No payment method recorded"}
             </Descriptions.Item>
           </Descriptions>
-          <Typography.Title level={5}>
+          <Divider className={styles.detailDivider} />
+          <Typography.Title level={5} className={styles.detailSectionTitle}>
             Delivery details at purchase
           </Typography.Title>
           <Descriptions

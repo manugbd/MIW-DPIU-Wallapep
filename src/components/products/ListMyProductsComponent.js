@@ -13,7 +13,7 @@ import {
   Table,
   Tag,
 } from "antd";
-import { ShopOutlined } from "@ant-design/icons";
+import { ShopOutlined, PlusOutlined } from "@ant-design/icons";
 import { formatMoney, formatDate } from "@/utils/UtilsFormat";
 import { PRODUCT_CATEGORY_OPTIONS } from "@/models/ProductCategories";
 import UserIdentity from "@/components/users/UserIdentity";
@@ -143,9 +143,12 @@ export default function ListMyProductsComponent() {
 
   return (
     <section>
-      <h1>
-        <ShopOutlined /> My products
-      </h1>
+      <header className={styles.heading}>
+        <h1><ShopOutlined /> My products</h1>
+        <Link href="/createProduct">
+          <Button type="primary" icon={<PlusOutlined />}>Add product</Button>
+        </Link>
+      </header>
 
       {error && (
         <Alert

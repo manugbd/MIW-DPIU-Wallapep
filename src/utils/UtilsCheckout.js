@@ -1,3 +1,4 @@
+import { expiryTimestamp } from "@/utils/UtilsCreditCard";
 export const ADDRESS_FIELDS = ["country", "address", "postalCode"];
 
 export const CARD_FIELDS = ["alias", "number", "expirationDate", "code"];
@@ -15,15 +16,21 @@ export const CARD_RULES = {
   ],
   number: [
     { required: true, message: "Enter the card number." },
-    { pattern: /^\d{13,19}$/, message: "Use 13 to 19 digits." },
+    { pattern: /^\d{16}$/, message: "Enter exactly 16 digits." },
   ],
   expirationDate: [
-    { required: true, message: "Choose the expiry month." },
+    { required: true, message: "Enter the expiry date (MM / YY)." },
     {
       validator: (_, value) =>
-        !value || value.endOf("month").valueOf() >= Date.now()
+        !value ||
+        (expiryTimestamp(value) !== null &&
+          expiryTimestamp(value) >= Date.now())
           ? Promise.resolve()
-          : Promise.reject(new Error("This card has expired.")),
+          : Promise.reject(
+              new Error(
+                "Enter a valid expiry date (MM / YY) that has not passed.",
+              ),
+            ),
     },
   ],
   code: [
@@ -32,14 +39,9 @@ export const CARD_RULES = {
   ],
 };
 
-export const toCheckoutPayload = (values) => ({
+export const toCheckoutPayload = (values, buyerPaymentId) => ({
   country: values.country,
   address: values.address,
   postalCode: values.postalCode,
-  card: {
-    alias: values.alias,
-    number: values.number.replace(/\s/g, ""),
-    code: values.code,
-    expirationDate: values.expirationDate.endOf("month").valueOf(),
-  },
+  buyerPaymentId,
 });

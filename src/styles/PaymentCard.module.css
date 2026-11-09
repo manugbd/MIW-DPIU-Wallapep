@@ -1,0 +1,48 @@
+.panel {
+  padding: var(--space-6);
+  margin-top: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  color: var(--text-heading);
+}
+.heading h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.heading :global(.anticon) {
+  font-size: 24px;
+  color: var(--primary);
+}
+.hint {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: var(--space-4);
+}
+.number {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+}
+@media (max-width: 480px) {
+  .panel {
+    padding: var(--space-4);
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 128px;
+  color: var(--text-secondary);
+}
+.savedCard {
+  padding-block: var(--space-4);
+}

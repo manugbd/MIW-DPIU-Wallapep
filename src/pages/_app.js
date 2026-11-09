@@ -81,7 +81,7 @@ export default function App({ Component, pageProps }) {
 
   let disconnect = async (e) => {
     e.preventDefault();
-    let response = await fetch(API_BASE_URL + "/users/disconnect", {
+    let response = await fetch(process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/users/disconnect", {
       method: "GET",
       headers: {
         apikey: localStorage.getItem("apiKey"),

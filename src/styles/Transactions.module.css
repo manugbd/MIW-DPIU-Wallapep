@@ -61,3 +61,11 @@
     padding: 16px 16px 0;
   }
 }
+
+.detailDivider {
+  margin: var(--space-6) 0;
+  border-color: var(--border);
+}
+.detailSectionTitle:global(.ant-typography) {
+  margin: 0 0 var(--space-4);
+}

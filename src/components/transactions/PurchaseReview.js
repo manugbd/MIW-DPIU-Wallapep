@@ -1,7 +1,8 @@
+import { maskCardNumber } from "@/utils/UtilsCreditCard";
 import { Descriptions } from "antd";
 import { formatMoney } from "@/utils/UtilsFormat";
 
-export default function PurchaseReview({ values, product }) {
+export default function PurchaseReview({ values, product, card }) {
   return (
     <>
       <h3>Review your purchase</h3>
@@ -20,7 +21,9 @@ export default function PurchaseReview({ values, product }) {
           {
             key: "card",
             label: "Card",
-            children: `${values.alias || ""} · •••• ${values.number?.slice(-4) || ""}`,
+            children: card
+              ? `${card.alias} · ${card.number}`
+              : `${values.alias || ""} · ${maskCardNumber(values.number)}`,
           },
           {
             key: "total",
@@ -29,7 +32,6 @@ export default function PurchaseReview({ values, product }) {
           },
         ]}
       />
-      <p>The purchase date is recorded automatically when you confirm.</p>
     </>
   );
 }

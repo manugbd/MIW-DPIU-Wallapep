@@ -1,8 +1,8 @@
-export const getCheckoutDefaults = async () => {
-  
+export const getCheckoutDefaults = async (signal) => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/users/own`,
     {
+      signal,
       headers: {
         apikey: localStorage.getItem("apiKey"),
       },
