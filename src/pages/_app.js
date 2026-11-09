@@ -30,69 +30,73 @@ export default function App({ Component, pageProps }) {
   let [login, setLogin] = useState(false);
   let [charUser, setCharUser] = useState("a");
 
+  const [checkedPath, setCheckedPath] = useState(null);
+  const guestOnly = ["/login", "/register"].includes(router.pathname);
+  const publicPage = router.pathname === "/";
+  const canRenderPage =
+    publicPage ||
+    (checkedPath === router.asPath && (guestOnly ? !login : login));
+
   useEffect(() => {
-    checkAll();
-    setCharUser(localStorage.getItem("email")?.charAt(0));
-  }, [pathname]);
+    if (!router.isReady) return;
+    let cancelled = false;
+    const controller = new AbortController();
+    const checkSession = async () => {
+      const apiKey = localStorage.getItem("apiKey");
+      let active = false;
+      if (apiKey) {
+        try {
+          const response = await fetch(
+            process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/users/isActiveApiKey",
+            {
+              headers: { apikey: apiKey },
+              signal: controller.signal,
+            },
+          );
+          active = response.ok && (await response.json()).activeApiKey === true;
+        } catch {
+          if (cancelled) return;
+        }
+      }
 
-  let checkAll = async () => {
-    let isActive = await checkLoginIsActive();
-    checkUserAccess(isActive);
-  };
+      if (cancelled) return;
 
-  let checkUserAccess = async (isActive) => {
-    if (!isActive && !["/", "/login", "/register"].includes(pathname)) {
-      router.push("/login");
-    }
-  };
+      setLogin(active);
+      setCharUser(active ? localStorage.getItem("email")?.charAt(0) : "");
+      setCheckedPath(router.asPath);
 
-  let checkLoginIsActive = async () => {
-    if (localStorage.getItem("apiKey") == null) {
-      setLogin(false);
-      return;
-    }
+      if (active && guestOnly) void router.replace("/products");
+      else if (!active && !publicPage && !guestOnly)
+        void router.replace("/login");
+    };
+    void checkSession();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [router.isReady, router.asPath, guestOnly, publicPage]);
 
-    let response;
+  const disconnect = async (e) => {
+    e.preventDefault();
+    const apiKey = localStorage.getItem("apiKey");
+    localStorage.removeItem("apiKey");
+    localStorage.removeItem("email");
+    setLogin(false);
+    setCheckedPath(null);
+    setCharUser("");
+    void router.replace("/login");
     try {
-      response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/users/isActiveApiKey",
+      await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/users/disconnect",
         {
           method: "GET",
-          headers: {
-            apikey: localStorage.getItem("apiKey"),
-          },
+          headers: { apikey: apiKey },
         },
       );
     } catch {
-      setLogin(false);
-      return false;
-    }
-
-    if (response.ok) {
-      let jsonData = await response.json();
-      setLogin(jsonData.activeApiKey);
-
-      return jsonData.activeApiKey;
-    } else {
-      setLogin(false);
-      return false;
+      // Local logout must succeed even when the server is unavailable.
     }
   };
-
-  let disconnect = async (e) => {
-    e.preventDefault();
-    let response = await fetch(process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/users/disconnect", {
-      method: "GET",
-      headers: {
-        apikey: localStorage.getItem("apiKey"),
-      },
-    });
-
-    localStorage.removeItem("apiKey");
-    setLogin(false);
-    router.push("/login");
-  };
-
   let callBackOnFinishLogin = (loginUser) => {
     console.log("Cambiado " + loginUser.email);
   };
@@ -272,12 +276,16 @@ export default function App({ Component, pageProps }) {
             className={`page-shell page-shell--${PAGE_WIDTH_BY_ROUTE[router.pathname] || "wide"}`}
           >
             <SiteBreadcrumbs />
-            <Component
-              {...pageProps}
-              isLoggedIn={login}
-              setLogin={setLogin}
-              openNotification={openNotification}
-            />
+            {canRenderPage ? (
+              <Component
+                {...pageProps}
+                isLoggedIn={login}
+                setLogin={setLogin}
+                openNotification={openNotification}
+              />
+            ) : (
+              <p role="status">Checking session...</p>
+            )}
           </div>
         </Content>
         <Footer style={{ textAlign: "center" }}> Wallapep </Footer>
