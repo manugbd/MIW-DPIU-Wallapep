@@ -1,4 +1,4 @@
-import { Empty } from "antd";
+import { Button, Empty } from "antd";
 import TransactionFilters from "@/components/transactions/TransactionFilters";
 import TransactionsTable from "@/components/transactions/TransactionsTable";
 import ListPagination from "@/components/ListPagination";
@@ -11,7 +11,9 @@ export default function ProfileTransactions({ transactions, userId }) {
     userId,
     PUBLIC_TRANSACTION_SORT,
   );
-  
+
+  const hasFilters =
+    Boolean(list.filters.text.trim()) || list.filters.type !== "all";
   return (
     <>
       <TransactionFilters
@@ -32,8 +34,16 @@ export default function ProfileTransactions({ transactions, userId }) {
         emptyText={
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="No public transactions to show. Try clearing your filters."
-          />
+            description={
+              hasFilters
+                ? "No public transactions match your filters."
+                : "No public transactions yet."
+            }
+          >
+            {hasFilters && (
+              <Button onClick={list.clearFilters}>Clear filters</Button>
+            )}
+          </Empty>
         }
       />
       <ListPagination pagination={list.pagination} />

@@ -121,6 +121,7 @@ export default function PaymentCardFields({ payment }) {
               <Form.Item
                 name="code"
                 label="Security code (CVV)"
+                tooltip="The 3 or 4 digit security code printed on your card."
                 rules={CARD_RULES.code}
                 normalize={(value) => onlyDigits(value).slice(0, 4)}
               >
@@ -144,6 +145,7 @@ function CardNumberInput({ value, onChange, ...props }) {
     <Input
       {...props}
       prefix={<CreditCardOutlined />}
+      allowClear
       autoComplete="cc-number"
       inputMode="numeric"
       maxLength={19}

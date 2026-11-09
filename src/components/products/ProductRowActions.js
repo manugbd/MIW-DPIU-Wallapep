@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button, Popconfirm, Tooltip } from "antd";
+import { Button, Tooltip } from "antd";
 import { RightOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import styles from "@/styles/MyProducts.module.css";
 
@@ -26,22 +26,15 @@ export default function ProductRowActions({ product, onDelete }) {
               <EditOutlined />
             </Link>
           </Tooltip>
-          <Popconfirm
-            title="Delete this product?"
-            description="This cannot be undone."
-            onConfirm={() => onDelete(product.id)}
-            okText="Delete"
-            cancelText="Cancel"
-          >
-            <Tooltip title="Delete product">
-              <Button
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                aria-label={`Delete ${product.title}`}
-              />
-            </Tooltip>
-          </Popconfirm>
+          <Tooltip title="Delete product">
+            <Button
+              type="text"
+              danger
+              onClick={() => onDelete(product.id)}
+              icon={<DeleteOutlined />}
+              aria-label={`Delete ${product.title}`}
+            />
+          </Tooltip>
         </>
       )}
     </div>

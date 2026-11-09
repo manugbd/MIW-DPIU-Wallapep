@@ -22,13 +22,6 @@
   --foreground: var(--text);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: var(--surface-dark);
-    --foreground: var(--text-inverse);
-  }
-}
-
 html,
 body {
   max-width: 100vw;
@@ -52,12 +45,6 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
 }
 
 .ant-descriptions-item-content {
@@ -138,4 +125,101 @@ a {
   :root {
     --page-gutter: var(--space-12);
   }
+}
+
+:root {
+  color-scheme: light;
+}
+.page-shell {
+  line-height: 1.6;
+}
+.page-shell h1 {
+  font-size: 32px;
+  line-height: 1.25;
+  color: var(--text-heading);
+  overflow-wrap: anywhere;
+}
+.page-shell h2,
+.page-shell h3 {
+  overflow-wrap: anywhere;
+}
+.page-shell p + p {
+  margin-top: var(--space-2);
+}
+.page-shell .ant-btn,
+.ant-modal .ant-btn {
+  min-height: 36px;
+}
+.page-shell .ant-segmented-item-label {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.page-shell .ant-table-tbody > tr:focus-within > td {
+  background: var(--avatar-bg);
+}
+.page-shell .ant-table-tbody > tr:focus-within > td:first-child {
+  box-shadow: inset 3px 0 var(--primary);
+}
+.document-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.document-options .ant-radio-button-wrapper {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  min-height: 36px;
+  height: auto;
+  line-height: 34px;
+}
+.document-options .ant-radio-button-wrapper::before {
+  display: none;
+}
+.date-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.date-value > .anticon {
+  color: var(--text-secondary);
+}
+.layout .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+@media (max-width: 575px) {
+  .page-shell h1 {
+    font-size: 28px;
+  }
+  .page-shell .ant-table-cell {
+    padding-inline: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-shell *,
+  .ant-modal * {
+    scroll-behavior: auto;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.document-options .ant-radio-button-wrapper-checked {
+  border-color: var(--primary);
+  background: var(--avatar-bg);
+  color: var(--avatar-text);
+}
+.profile-shortcuts {
+  margin-top: var(--space-4);
+}
+.profile-shortcuts a {
+  color: var(--primary);
+  padding-block: var(--space-2);
+}
+#sale-title,
+#activity-title {
+  scroll-margin-top: 96px;
 }

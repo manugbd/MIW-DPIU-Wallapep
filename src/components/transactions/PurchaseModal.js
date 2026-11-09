@@ -70,14 +70,14 @@ export default function PurchaseModal({ product, purchase }) {
           />
         )}
         <Space className="form-actions">
-          <Button onClick={purchase.closeConfirmation} disabled={busy}>
-            Cancel
-          </Button>
           {checkout.step > 0 && (
             <Button onClick={checkout.back} disabled={busy}>
               Back
             </Button>
           )}
+          <Button onClick={purchase.closeConfirmation} disabled={busy}>
+            Cancel
+          </Button>
           {checkout.step < 2 ? (
             <Button
               type="primary"

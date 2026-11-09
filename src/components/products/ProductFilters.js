@@ -17,7 +17,7 @@ export default function ProductFilters({
 
   const validateRange = (_, value) => {
     const minimum = form.getFieldValue("minPrice");
-    
+
     return minimum != null && value != null && minimum > value
       ? Promise.reject(
           new Error(
@@ -96,6 +96,7 @@ export default function ProductFilters({
         </Col>
       </Row>
       <div className={styles.filterActions}>
+        <p className={styles.filterHint}>Results update as you type.</p>
         <Button
           htmlType="button"
           icon={<ClearOutlined />}

@@ -1,4 +1,5 @@
-import { Empty } from "antd";
+import Link from "next/link";
+import { Button, Empty } from "antd";
 import ProductGrid from "@/components/products/ProductGrid";
 import ListPagination from "@/components/ListPagination";
 import { usePagination } from "@/hooks/usePagination";
@@ -13,7 +14,11 @@ export default function ProfileProducts({ products, userId }) {
       <Empty
         image={Empty.PRESENTED_IMAGE_SIMPLE}
         description="No products for sale right now."
-      />
+      >
+        <Link href="/products">
+          <Button>Browse products</Button>
+        </Link>
+      </Empty>
     );
 
   return (

@@ -1,10 +1,9 @@
 import CreateUserComponent from "@/components/users/CreateUserComponent";
 
-export default function RegisterPage() {
-
+export default function RegisterPage({ openNotification }) {
   return (
     <div>
-      <CreateUserComponent />
+      <CreateUserComponent openNotification={openNotification} />
     </div>
   );
 }

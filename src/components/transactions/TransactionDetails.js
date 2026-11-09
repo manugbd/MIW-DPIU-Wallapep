@@ -1,18 +1,17 @@
+import DateValue from "@/components/DateValue";
 import styles from "@/styles/Transactions.module.css";
 import Link from "next/link";
 import { Button, Descriptions, Divider, Modal, Tag, Typography } from "antd";
 import UserIdentity from "@/components/users/UserIdentity";
 import {
   formatTransactionAmount,
-  formatTransactionDate,
   getTransactionId,
   getTransactionRole,
 } from "@/utils/UtilsTransactions";
 
 export default function TransactionDetails({ transaction, userId, onClose }) {
-
   const role = transaction && getTransactionRole(transaction, userId);
-  
+
   return (
     <Modal
       title={
@@ -90,10 +89,10 @@ export default function TransactionDetails({ transaction, userId, onClose }) {
             }}
           >
             <Descriptions.Item label="Purchase date">
-              {formatTransactionDate(transaction.startDate)}
+              <DateValue value={transaction.startDate} />
             </Descriptions.Item>
             <Descriptions.Item label="Completion date">
-              {formatTransactionDate(transaction.endDate)}
+              <DateValue value={transaction.endDate} />
             </Descriptions.Item>
             <Descriptions.Item label="Payment reference">
               {transaction.buyerPaymentId != null

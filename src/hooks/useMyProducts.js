@@ -1,3 +1,4 @@
+import { useUndoableActions } from "@/components/UndoableActionsProvider";
 import { useEffect, useMemo, useState } from "react";
 import {
   getMyProducts,
@@ -6,20 +7,24 @@ import {
 } from "@/services/productsService";
 
 export const useMyProducts = () => {
-
+  const { schedule, hiddenKeys } = useUndoableActions();
   const [products, setProducts] = useState([]),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
+    [feedback, setFeedback] = useState(""),
     [text, setText] = useState(""),
     [category, setCategory] = useState(),
     [status, setStatus] = useState("all"),
     [editing, setEditing] = useState(null),
     [price, setPrice] = useState(null),
+    [editingField, setEditingField] = useState("price"),
+    [title, setTitle] = useState(""),
     [saving, setSaving] = useState(false);
 
   const load = () => {
     setLoading(true);
     setError("");
+    setFeedback("");
 
     getMyProducts()
       .then((data) =>
@@ -49,30 +54,46 @@ export const useMyProducts = () => {
   );
 
   const save = async (product) => {
-    if (price == null || !Number.isFinite(Number(price)) || Number(price) < 0) {
+    if (
+      editingField === "title" &&
+      (title.trim().length < 5 || title.trim().length > 50)
+    ) {
+      setError("Use between 5 and 50 characters for the product title.");
+      return;
+    }
+    if (
+      editingField === "price" &&
+      (price == null || !Number.isFinite(Number(price)) || Number(price) < 0)
+    ) {
       setError("Enter a non-negative price.");
       return;
     }
 
     setSaving(true);
     setError("");
+    setFeedback("");
 
     try {
+      const changes =
+        editingField === "title" ? { title: title.trim() } : { price };
       await updateProduct(product.id, {
         ...product,
-        price,
+        ...changes,
       });
       setProducts((current) =>
         current.map((p) =>
           p.id === product.id
             ? {
                 ...p,
-                price,
+                ...changes,
               }
             : p,
         ),
       );
       setEditing(null);
+      setFeedback(
+        editingField === "title" ? "Product name updated." : "Price updated.",
+      );
     } catch (error) {
       setError(error.message);
     } finally {
@@ -80,20 +101,73 @@ export const useMyProducts = () => {
     }
   };
 
-  const remove = async (id) => {
+  const removeMany = (ids) => {
+    const requested = new Set(ids);
+
+    const targets = filtered.filter(
+      (product) =>
+        requested.has(product.id) &&
+        product.buyerId == null &&
+        !hiddenKeys.has("product:" + product.id),
+    );
+
+    if (!targets.length) return;
+
     setError("");
-    try {
-      await deleteProduct(id);
-      setProducts((current) => current.filter((p) => p.id !== id));
-    } catch (error) {
-      setError(error.message);
-    }
+    setFeedback("");
+    setEditing(null);
+
+    schedule({
+      key: "delete-products:" + targets.map((product) => product.id).join(","),
+      keys: targets.map((product) => "product:" + product.id),
+      label:
+        targets.length === 1
+          ? targets[0].title
+          : targets.length + " selected products",
+      execute: async () => {
+        const results = [];
+        for (const product of targets) {
+          try {
+            await deleteProduct(product.id);
+            results.push({ status: "fulfilled" });
+          } catch (error) {
+            results.push({ status: "rejected", reason: error });
+          }
+        }
+
+        const deletedIds = new Set(
+          targets
+            .filter((_, index) => results[index].status === "fulfilled")
+            .map((product) => product.id),
+        );
+
+        setProducts((current) =>
+          current.filter((product) => !deletedIds.has(product.id)),
+        );
+        
+        return {
+          errorMessage: results.find((result) => result.status === "rejected")
+            ?.reason?.message,
+          failedKeys: targets
+            .filter((_, index) => results[index].status === "rejected")
+            .map((product) => "product:" + product.id),
+        };
+      },
+    });
   };
-  
+
+  const remove = (id) => removeMany([id]);
+
+  const visibleProducts = products.filter(
+    (product) => !hiddenKeys.has("product:" + product.id),
+  );
+
   return {
-    products,
+    products: visibleProducts,
     loading,
     error,
+    feedback,
+    clearFeedback: () => setFeedback(""),
     text,
     setText,
     category,
@@ -104,10 +178,17 @@ export const useMyProducts = () => {
     setEditing,
     price,
     setPrice,
+    editingField,
+    setEditingField,
+    title,
+    setTitle,
     saving,
     load,
-    filtered,
+    filtered: filtered.filter(
+      (product) => !hiddenKeys.has("product:" + product.id),
+    ),
     save,
     remove,
+    removeMany,
   };
 };

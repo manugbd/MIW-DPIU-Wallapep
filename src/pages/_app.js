@@ -1,10 +1,11 @@
+import { UndoableActionsProvider } from "@/components/UndoableActionsProvider";
 import { PAGE_WIDTH_BY_ROUTE } from "@/models/PageLayout";
 import Head from "next/head";
 import SiteBreadcrumbs from "@/components/SiteBreadcrumbs";
 import "@/styles/globals.css";
 import Link from "next/link";
 import "antd/dist/reset.css";
-import { Layout, Menu, Avatar, Typography, Col, Row, notification } from "antd";
+import { Layout, Menu, Avatar, Col, Row, notification } from "antd";
 import {
   HomeOutlined,
   ShopOutlined,
@@ -20,13 +21,24 @@ import { usePathname } from "next/navigation";
 import { Provider } from "react-redux";
 import store from "../reducers/store";
 
-const { Text } = Typography;
+const ACTIVE_MENU_BY_ROUTE = {
+  "/": "menuHome",
+  "/products": "menuProducts",
+  "/detailProduct/[id]": "menuProducts",
+  "/createProduct": "menuCreateProduct",
+  "/editProduct/[id]": "menuMyProduct",
+  "/myProducts": "menuMyProduct",
+  "/myTransactions": "menuMyTransactions",
+  "/login": "menuLogin",
+  "/register": "menuRegister",
+};
 
 export default function App({ Component, pageProps }) {
   const [api, contextHolder] = notification.useNotification();
 
   const pathname = usePathname();
   let router = useRouter();
+  const activeMenu = ACTIVE_MENU_BY_ROUTE[router.pathname];
   let [login, setLogin] = useState(false);
   let [charUser, setCharUser] = useState("a");
 
@@ -124,17 +136,7 @@ export default function App({ Component, pageProps }) {
             <Col xs={18} sm={19} md={20} lg={21} xl={22}>
               {!login && (
                 <Menu
-                  selectedKeys={[
-                    {
-                      "/": "menuHome",
-                      "/products": "menuProducts",
-                      "/createProduct": "menuCreateProduct",
-                      "/myProducts": "menuMyProduct",
-                      "/myTransactions": "menuMyTransactions",
-                      "/login": "menuLogin",
-                      "/register": "menuRegister",
-                    }[pathname],
-                  ]}
+                  selectedKeys={activeMenu ? [activeMenu] : []}
                   theme="dark"
                   mode="horizontal"
                   items={[
@@ -159,29 +161,19 @@ export default function App({ Component, pageProps }) {
                     {
                       key: "menuLogin",
                       icon: <LoginOutlined />,
-                      label: <Link href="/login">Login</Link>,
+                      label: <Link href="/login">Sign in</Link>,
                     },
                     {
                       key: "menuRegister",
                       icon: <UserAddOutlined />,
-                      label: <Link href="/register">Register</Link>,
+                      label: <Link href="/register">Create account</Link>,
                     },
                   ]}
                 ></Menu>
               )}
               {login && (
                 <Menu
-                  selectedKeys={[
-                    {
-                      "/": "menuHome",
-                      "/products": "menuProducts",
-                      "/createProduct": "menuCreateProduct",
-                      "/myProducts": "menuMyProduct",
-                      "/myTransactions": "menuMyTransactions",
-                      "/login": "menuLogin",
-                      "/register": "menuRegister",
-                    }[pathname],
-                  ]}
+                  selectedKeys={activeMenu ? [activeMenu] : []}
                   theme="dark"
                   mode="horizontal"
                   items={[
@@ -216,7 +208,7 @@ export default function App({ Component, pageProps }) {
                     {
                       key: "menuMyProduct",
                       icon: <ShopOutlined />,
-                      label: <Link href="/myProducts">My Products</Link>,
+                      label: <Link href="/myProducts">My products</Link>,
                     },
                     {
                       key: "menuMyTransactions",
@@ -235,7 +227,7 @@ export default function App({ Component, pageProps }) {
                             disconnect(e);
                           }}
                         >
-                          Disconnect
+                          Sign out
                         </Link>
                       ),
                     },
@@ -262,12 +254,7 @@ export default function App({ Component, pageProps }) {
                 >
                   {charUser}
                 </Avatar>
-              ) : (
-                <Link href="/login">
-                  {" "}
-                  <Text style={{ color: "var(--surface)" }}>Login</Text>
-                </Link>
-              )}
+              ) : null}
             </Col>
           </Row>
         </Header>
@@ -275,17 +262,19 @@ export default function App({ Component, pageProps }) {
           <div
             className={`page-shell page-shell--${PAGE_WIDTH_BY_ROUTE[router.pathname] || "wide"}`}
           >
-            <SiteBreadcrumbs />
-            {canRenderPage ? (
-              <Component
-                {...pageProps}
-                isLoggedIn={login}
-                setLogin={setLogin}
-                openNotification={openNotification}
-              />
-            ) : (
-              <p role="status">Checking session...</p>
-            )}
+            <UndoableActionsProvider key={String(login)}>
+              <SiteBreadcrumbs />
+              {canRenderPage ? (
+                <Component
+                  {...pageProps}
+                  isLoggedIn={login}
+                  setLogin={setLogin}
+                  openNotification={openNotification}
+                />
+              ) : (
+                <p role="status">Checking session...</p>
+              )}
+            </UndoableActionsProvider>
           </div>
         </Content>
         <Footer style={{ textAlign: "center" }}> Wallapep </Footer>

@@ -130,3 +130,24 @@
 .sortControls :global(.ant-select) {
   min-width: 208px;
 }
+
+.productCard:focus-within {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  box-shadow: 0 4px 16px var(--shadow);
+}
+.productCard :global(.ant-card-body) {
+  min-width: 0;
+}
+.productTitle a:focus-visible {
+  outline-offset: 1px;
+}
+@media (max-width: 575px) {
+  .sortControls {
+    justify-content: space-between;
+  }
+  .sortControls :global(.ant-select) {
+    flex: 1;
+    min-width: 0;
+  }
+}

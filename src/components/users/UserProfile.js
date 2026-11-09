@@ -1,4 +1,4 @@
-import { formatDate } from "@/utils/UtilsFormat";
+import DateValue from "@/components/DateValue";
 import Head from "next/head";
 import Link from "next/link";
 import { Alert, Button, Card, Descriptions, Skeleton, Space, Tag } from "antd";
@@ -92,14 +92,14 @@ export default function UserProfile({ id }) {
                       <Tag>{summary.sales} sales</Tag>
                       <Tag>
                         Last activity:{" "}
-                        {formatDate(
-                          Math.max(
+                        <DateValue
+                          value={Math.max(
                             ...profile.transactions.map(
                               (t) => Number(t.startDate) || 0,
                             ),
                             0,
-                          ),
-                        )}
+                          )}
+                        />
                       </Tag>
                     </>
                   )}
@@ -108,6 +108,10 @@ export default function UserProfile({ id }) {
                   )}
                 </Space>
               )}
+              <Space wrap className="profile-shortcuts">
+                <a href="#sale-title">Products for sale</a>
+                <a href="#activity-title">Public activity</a>
+              </Space>
             </Card>
             <section className={styles.section} aria-labelledby="sale-title">
               <h2 id="sale-title">Products for sale</h2>

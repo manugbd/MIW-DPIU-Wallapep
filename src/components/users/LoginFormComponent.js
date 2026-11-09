@@ -37,7 +37,7 @@ export default function LoginFormComponent({ setLogin, openNotification }) {
         <h1>
           <LoginOutlined /> Sign in
         </h1>
-        
+
         {error && <Alert type="error" showIcon role="alert" message={error} />}
 
         <Form
@@ -60,7 +60,12 @@ export default function LoginFormComponent({ setLogin, openNotification }) {
               },
             ]}
           >
-            <Input autoComplete="username" type="email" maxLength={50} />
+            <Input
+              allowClear
+              autoComplete="username"
+              type="email"
+              maxLength={50}
+            />
           </Form.Item>
 
           <Form.Item
@@ -79,7 +84,7 @@ export default function LoginFormComponent({ setLogin, openNotification }) {
           <Button type="primary" htmlType="submit" loading={submitting} block>
             Sign in
           </Button>
-          
+
           <p>
             New to Wallapep? <Link href="/register">Create an account</Link>
           </p>

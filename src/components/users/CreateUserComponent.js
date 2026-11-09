@@ -1,3 +1,4 @@
+import { UserAddOutlined } from "@ant-design/icons";
 import { BIRTHDAY_INPUT_FORMATS } from "@/utils/UtilsDates";
 import AddressFields from "@/components/forms/AddressFields";
 import { useState } from "react";
@@ -12,10 +13,9 @@ import {
   Form,
   Input,
   Row,
-  Select,
+  Radio,
   Space,
   Typography,
-  message,
 } from "antd";
 import {
   DOCUMENT_FORMATS,
@@ -29,13 +29,12 @@ import {
 import { registerUser } from "@/services/usersService";
 import { isDateInFuture } from "@/utils/UtilsValidations";
 
-const CreateUserComponent = () => {
+const CreateUserComponent = ({ openNotification }) => {
   const router = useRouter();
 
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
-  const [messageApi, contextHolder] = message.useMessage();
 
   const documentType = Form.useWatch("documentIdentity", form);
 
@@ -45,7 +44,11 @@ const CreateUserComponent = () => {
 
     try {
       await registerUser(values);
-      messageApi.success("Account created. You can now sign in.");
+      openNotification?.(
+        "top",
+        "Account created. You can now sign in.",
+        "success",
+      );
       form.resetFields();
       await router.push("/login");
     } catch (error) {
@@ -67,11 +70,9 @@ const CreateUserComponent = () => {
   const clearServerError = () => {
     if (serverError) setServerError("");
   };
-  
+
   return (
     <div className="form-page">
-      {contextHolder}
-
       <Card>
         <Space
           direction="vertical"
@@ -82,12 +83,12 @@ const CreateUserComponent = () => {
           }}
         >
           <Typography.Title
-            level={2}
+            level={1}
             style={{
               margin: 0,
             }}
           >
-            Create account
+            <UserAddOutlined /> Create account
           </Typography.Title>
         </Space>
 
@@ -137,6 +138,7 @@ const CreateUserComponent = () => {
             ]}
           >
             <Input
+              allowClear
               type="email"
               autoComplete="email"
               maxLength={50}
@@ -184,6 +186,7 @@ const CreateUserComponent = () => {
                 ]}
               >
                 <Input
+                  allowClear
                   autoComplete="given-name"
                   maxLength={50}
                   placeholder="e.g. Anna"
@@ -202,6 +205,7 @@ const CreateUserComponent = () => {
                 ]}
               >
                 <Input
+                  allowClear
                   autoComplete="family-name"
                   maxLength={50}
                   placeholder="e.g. Smith"
@@ -224,19 +228,22 @@ const CreateUserComponent = () => {
                       Personal details
                     </Typography.Title>
                     <Row gutter={16}>
-                      <Col xs={24} sm={12}>
+                      <Col span={24}>
                         <Form.Item
                           label="Document type"
                           name="documentIdentity"
                         >
-                          <Select
-                            allowClear
-                            options={DOCUMENT_TYPES}
-                            placeholder="Choose a document type"
+                          <Radio.Group
+                            className="document-options"
+                            optionType="button"
+                            options={[
+                              ...DOCUMENT_TYPES,
+                              { value: "", label: "Not provided" },
+                            ]}
                           />
                         </Form.Item>
                       </Col>
-                      <Col xs={24} sm={12}>
+                      <Col span={24}>
                         <Form.Item
                           label="Document number"
                           name="documentNumber"
@@ -281,7 +288,7 @@ const CreateUserComponent = () => {
                             validateRegistrationBirthday(value),
                         },
                       ]}
-                      extra="Day/month/year, for example 1/1/2020. Type a date or choose it from the calendar."
+                      extra="DD/MM/YYYY. Type a date or use the calendar."
                     >
                       <DatePicker
                         style={{

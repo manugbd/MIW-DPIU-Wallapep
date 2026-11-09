@@ -1,3 +1,8 @@
+.editAction {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
 .rowActions {
   display: flex;
   justify-content: flex-end;
@@ -11,8 +16,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 4px;
   color: var(--primary);
 }
@@ -20,18 +25,22 @@
   background: var(--surface-hover);
 }
 .table :global(.ant-table-row):hover .rowActions,
-.table :global(.ant-table-row):focus-within .rowActions {
+.table :global(.ant-table-row):focus-within .rowActions,
+.table :global(.ant-table-row):hover .editAction,
+.table :global(.ant-table-row):focus-within .editAction {
   opacity: 1;
   pointer-events: auto;
 }
 @media (hover: none), (pointer: coarse) {
-  .rowActions {
+  .rowActions,
+  .editAction {
     opacity: 1;
     pointer-events: auto;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .rowActions {
+  .rowActions,
+  .editAction {
     transition: none;
   }
 }
@@ -44,4 +53,21 @@
   gap: var(--space-4);
   margin-bottom: var(--space-6);
 }
-.heading h1 { margin: 0; }
+.heading h1 {
+  margin: 0;
+}
+
+.table :global(.ant-empty) {
+  padding-block: var(--space-6);
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.filterField > label,
+.filterField > span {
+  font-size: 14px;
+  color: var(--text-heading);
+}

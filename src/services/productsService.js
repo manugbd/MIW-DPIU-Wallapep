@@ -1,15 +1,20 @@
 const productRequest = async (path, options = {}) => {
   let response;
   try {
-    response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${path}`, {
-      ...options,
-      headers: {
-        ...options.headers,
-        apikey: localStorage.getItem("apiKey"),
+    response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${path}`,
+      {
+        ...options,
+        headers: {
+          ...options.headers,
+          apikey: localStorage.getItem("apiKey"),
+        },
       },
-    });
+    );
   } catch {
-    throw new Error("Could not reach the server. Check your connection and try again.");
+    throw new Error(
+      "Could not reach the server. Check your connection and try again.",
+    );
   }
 
   const body = await response.json().catch(() => ({}));
@@ -61,7 +66,9 @@ export const getProducts = async (signal) => {
   });
 
   if (!Array.isArray(products))
-    throw new Error("The server returned an unexpected product list. Please try again.");
+    throw new Error(
+      "The server returned an unexpected product list. Please try again.",
+    );
 
   return products;
 };
@@ -95,7 +102,7 @@ export const getProductsForSaleByUser = async (userId, signal) => {
 export const uploadProductImage = (productId, image) => {
   const body = new FormData();
   body.append("image", image);
-  
+
   return productRequest(`/products/${productId}/image`, {
     method: "POST",
     body,
@@ -122,7 +129,15 @@ export const getMyProducts = () =>
   productRequest("/products/own/", {
     method: "GET",
   });
-export const deleteProduct = (id) =>
-  productRequest(`/products/${encodeURIComponent(id)}`, {
+  
+export const deleteProduct = async (id) => {
+  const result = await productRequest(`/products/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
+
+  if (result.deleted !== true)
+    throw new Error(
+      "The server did not confirm the deletion. Please refresh and try again.",
+    );
+  return result;
+};

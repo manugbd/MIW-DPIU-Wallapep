@@ -181,7 +181,7 @@ const CreateProductComponent = ({ id }) => {
         ) : (
           <>
             <Typography.Title
-              level={2}
+              level={1}
               style={{
                 marginTop: 0,
               }}
@@ -202,7 +202,11 @@ const CreateProductComponent = ({ id }) => {
                 type="error"
                 showIcon
                 role="alert"
-                message="Your product could not be listed"
+                message={
+                  editing
+                    ? "Your changes could not be saved"
+                    : "Your product could not be listed"
+                }
                 description={serverError}
                 style={{
                   marginBottom: 24,
@@ -226,11 +230,13 @@ const CreateProductComponent = ({ id }) => {
                 label="Title"
                 name="title"
                 rules={PRODUCT_FORM_RULES.title}
+                extra="5–50 characters."
               >
                 <Input
                   maxLength={50}
                   showCount
-                  placeholder="Nintendo Switch (Must be between 5 and 50 characters)"
+                  placeholder="e.g. Wooden dining table"
+                  allowClear
                 />
               </Form.Item>
               <Form.Item
@@ -260,6 +266,7 @@ const CreateProductComponent = ({ id }) => {
               </Form.Item>
               <Form.Item label="Description (optional)" name="description">
                 <Input.TextArea
+                  allowClear
                   autoSize={{
                     minRows: 2,
                     maxRows: 12,
@@ -287,10 +294,7 @@ const CreateProductComponent = ({ id }) => {
               <Form.Item
                 label="Photo (optional)"
                 validateStatus={imageError ? "error" : undefined}
-                help={
-                  imageError ||
-                  "One JPG, PNG or WebP image, up to 5 MB. You can remove or replace it before publishing."
-                }
+                help={imageError || "JPG, PNG or WebP · max 5 MB."}
               >
                 <Upload.Dragger
                   name="image"
@@ -310,7 +314,7 @@ const CreateProductComponent = ({ id }) => {
                     Drop a photo here or click to choose
                   </p>
                   <p className="ant-upload-hint">
-                    Your photo will be uploaded when you publish.
+                    You can remove or replace the photo before saving.
                   </p>
                 </Upload.Dragger>
               </Form.Item>
