@@ -1,6 +1,6 @@
-import CreateProductComponent from "./components/products/CreateProductComponent";
+import CreateProductComponent from "@/components/products/CreateProductComponent";
 
-export default function LoginPage({setLogin}) {
+export default function LoginPage({ setLogin }) {
 
   return (
     <div>

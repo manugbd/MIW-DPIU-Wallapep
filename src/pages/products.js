@@ -1,5 +1,5 @@
 import Head from "next/head";
-import ListProductsComponent from "@/pages/components/products/ListProductsComponent";
+import ListProductsComponent from "@/components/products/ListProductsComponent";
 
 export default function ProductsPage() {
   return (

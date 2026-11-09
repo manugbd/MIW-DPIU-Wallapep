@@ -1,3 +1,4 @@
+import { DEFAULT_PRODUCT_SORT, sortProducts } from "@/utils/UtilsProductSort";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { getProducts } from "@/services/productsService";
@@ -13,10 +14,13 @@ import {
 
 export const useProductSearch = () => {
   const router = useRouter();
+
+  const [sort, setSort] = useState(DEFAULT_PRODUCT_SORT);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [revision, setRevision] = useState(0);
+
   const filters = useMemo(
     () => getProductFiltersFromQuery(router.query),
     [router.query],
@@ -24,11 +28,14 @@ export const useProductSearch = () => {
 
   useEffect(() => {
     const controller = new AbortController();
+
     setLoading(true);
     setError("");
+
     getProducts(controller.signal)
       .then((data) => {
-        if (!controller.signal.aborted) setProducts(data);
+        if (!controller.signal.aborted)
+          setProducts(data.filter((product) => product.buyerId == null));
       })
       .catch((error) => {
         if (!controller.signal.aborted) setError(error.message);
@@ -36,44 +43,66 @@ export const useProductSearch = () => {
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
       });
+
     return () => controller.abort();
   }, [revision]);
 
   const results = useMemo(
-    () => filterProducts(products, filters),
-    [products, filters],
+    () => sortProducts(filterProducts(products, filters), sort),
+    [products, filters, sort],
   );
+
   const categoryOptions = useMemo(
     () => getCategoryFilterOptions(products),
     [products],
   );
-  const pagination = usePagination(results, { resetKey: filters });
+
+  const pagination = usePagination(results, {
+    resetKey: `${JSON.stringify(filters)}|${sort}`,
+  });
 
   const applyFilters = useCallback(
     (values) => {
-      const query = { ...router.query };
+      const query = {
+        ...router.query,
+      };
+
       ["title", "category", "minPrice", "maxPrice"].forEach(
         (key) => delete query[key],
       );
+
       return router.replace(
         {
           pathname: router.pathname,
-          query: { ...query, ...getProductFilterQuery(values) },
+          query: {
+            ...query,
+            ...getProductFilterQuery(values),
+          },
         },
         undefined,
-        { shallow: true, scroll: false },
+        {
+          shallow: true,
+          scroll: false,
+        },
       );
     },
     [router],
   );
 
   const clearFilters = () => applyFilters(DEFAULT_PRODUCT_FILTERS);
-  const removeFilter = (key) =>
-    applyFilters({ ...filters, [key]: EMPTY_PRODUCT_FILTERS[key] });
-  const retry = () => setRevision((value) => value + 1);
 
+  const removeFilter = (key) =>
+    applyFilters({
+      ...filters,
+      [key]: EMPTY_PRODUCT_FILTERS[key],
+    });
+
+  const retry = () => setRevision((value) => value + 1);
+  
   return {
     filters,
+    sort,
+    setSort,
     categoryOptions,
     visibleProducts: pagination.items,
     total: products.length,

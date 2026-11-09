@@ -1,16 +1,15 @@
 .page {
-  --background: #fafafa;
-  --foreground: #fff;
+  --background: var(--surface-muted);
+  --foreground: var(--surface);
 
-  --text-primary: #000;
-  --text-secondary: #666;
+  --text-primary: var(--text-strong);
+  --text-secondary: var(--text-muted);
 
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
+  --button-primary-hover: var(--action-hover);
+  --button-secondary-hover: var(--surface-hover);
+  --button-secondary-border: var(--border-subtle);
 
   width: 100%;
-  max-width: 960px;
   margin-inline: auto;
   display: flex;
   align-items: center;

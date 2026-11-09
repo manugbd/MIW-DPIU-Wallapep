@@ -1,7 +1,6 @@
 .page {
-  max-width: 1100px;
   margin-inline: auto;
-  color: #262626;
+  color: var(--text-heading);
 }
 .backLink {
   display: inline-flex;
@@ -39,11 +38,11 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   margin-bottom: 28px;
-  color: #595959;
+  color: var(--text-secondary);
 }
 .reason {
   margin-top: 12px;
-  color: #595959;
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 .confirmTitle {

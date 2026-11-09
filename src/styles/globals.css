@@ -1,12 +1,31 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --surface: #ffffff;
+  --text: #171717;
+  --surface-dark: #0a0a0a;
+  --text-inverse: #ededed;
+  --surface-muted: #fafafa;
+  --text-strong: #000;
+  --text-muted: #666;
+  --action-hover: #383838;
+  --surface-hover: #f2f2f2;
+  --border-subtle: #ebebeb;
+  --text-heading: #262626;
+  --text-secondary: #595959;
+  --border: #e8e8e8;
+  --primary: #1677ff;
+  --shadow: #00000024;
+  --avatar-bg: #f0f5ff;
+  --avatar-text: #0958d9;
+}
+:root {
+  --background: var(--surface);
+  --foreground: var(--text);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--surface-dark);
+    --foreground: var(--text-inverse);
   }
 }
 
@@ -38,5 +57,85 @@ a {
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
+  }
+}
+
+.ant-descriptions-item-content {
+  overflow-wrap: anywhere;
+}
+.ant-card {
+  min-width: 0;
+}
+
+.section-stack {
+  display: grid;
+  gap: 32px;
+  margin-top: 32px;
+}
+.section-stack h3 {
+  margin-bottom: 16px;
+}
+
+.checkout-steps {
+  margin-bottom: 24px;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Page sizes and spacing use a shared 4px scale. */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --page-narrow: 640px;
+  --page-medium: 1024px;
+  --page-wide: 1440px;
+  --page-gutter: var(--space-4);
+}
+.layout .site-content {
+  padding: var(--space-6) var(--page-gutter) var(--space-12);
+}
+.layout .site-header {
+  padding-inline: var(--page-gutter);
+}
+.page-shell {
+  width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+}
+.page-shell--narrow {
+  max-width: var(--page-narrow);
+}
+.page-shell--medium {
+  max-width: var(--page-medium);
+}
+.page-shell--wide {
+  max-width: var(--page-wide);
+}
+.form-page {
+  width: 100%;
+  padding-block: var(--space-6);
+}
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: var(--space-8);
+  }
+}
+@media (min-width: 1280px) {
+  :root {
+    --page-gutter: var(--space-12);
   }
 }

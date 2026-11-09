@@ -1,5 +1,7 @@
+import { PRODUCT_SORT_OPTIONS } from "@/utils/UtilsProductSort";
+import { ShoppingOutlined } from "@ant-design/icons";
 import Link from "next/link";
-import { Alert, Button, Empty } from "antd";
+import { Alert, Button, Empty, Select } from "antd";
 import ListPagination from "@/components/ListPagination";
 import ProductFilters from "@/components/products/ProductFilters";
 import ActiveProductFilters from "@/components/products/ActiveProductFilters";
@@ -15,7 +17,9 @@ export default function ListProductsComponent() {
   return (
     <section className={styles.page} aria-labelledby="products-heading">
       <header className={styles.heading}>
-        <h1 id="products-heading">Products</h1>
+        <h1 id="products-heading">
+          <ShoppingOutlined /> Products
+        </h1>
         <p>Find your next second-hand discovery.</p>
       </header>
 
@@ -26,6 +30,15 @@ export default function ListProductsComponent() {
         onReset={search.clearFilters}
       />
 
+      <div className={styles.sortControls}>
+        <label htmlFor="product-sort">Sort by</label>
+        <Select
+          id="product-sort"
+          value={search.sort}
+          onChange={search.setSort}
+          options={PRODUCT_SORT_OPTIONS}
+        />
+      </div>
       <ActiveProductFilters
         filters={search.filters}
         onRemove={search.removeFilter}
@@ -56,7 +69,7 @@ export default function ListProductsComponent() {
               ? ` out of ${search.total}`
               : ""}
           </p>
-          
+
           {search.resultCount > 0 ? (
             <>
               <ProductGrid products={search.visibleProducts} />

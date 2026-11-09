@@ -1,35 +1,45 @@
 import { getDocumentNumberProblem } from "./UtilsUser";
 import { validateDateNotInFuture } from "./UtilsValidations";
 
-
 const DOCUMENT_MESSAGES = {
-  DNI: "Formato: 8 números y una letra, por ejemplo 12345678Z.",
-  NIE: "Formato: X, Y o Z, 7 números y una letra, por ejemplo X1234567L.",
-  Pasaporte: "Introduce entre 5 y 20 letras o números.",
-  Otro: "Introduce entre 3 y 50 letras, números o guiones.",
+  DNI: "Format: 8 digits and a letter, for example 12345678Z.",
+  NIE: "Format: X, Y or Z, 7 digits and a letter, for example X1234567L.",
+  Pasaporte: "Enter 5 to 20 letters or digits.",
+  Otro: "Enter 3 to 50 letters, digits or hyphens.",
 };
 
 export const validateRegistrationDocument = (type, value) => {
   const problem = getDocumentNumberProblem(type, value);
+
   if (problem === "invalid-format") {
-    return Promise.reject(new Error(DOCUMENT_MESSAGES[type] || DOCUMENT_MESSAGES.Otro));
+    return Promise.reject(
+      new Error(DOCUMENT_MESSAGES[type] || DOCUMENT_MESSAGES.Otro),
+    );
   }
+
   if (problem === "invalid-control-letter") {
     const label = type === "DNI" ? "DNI" : "NIE";
-    return Promise.reject(new Error("La letra del " + label + " no corresponde con el número introducido."));
+    return Promise.reject(
+      new Error(
+        "The " + label + " check letter does not match the number entered.",
+      ),
+    );
   }
+
   return Promise.resolve();
 };
 
 export const validateRegistrationBirthday = (value) => {
   if (!value) return Promise.resolve();
   return validateDateNotInFuture(value, {
-    invalidMessage: "Introduce una fecha válida con formato día/mes/año.",
-    futureMessage: "La fecha no puede ser posterior a hoy.",
+    invalidMessage: "Enter a valid date in day/month/year format.",
+    futureMessage: "The date cannot be later than today.",
   });
 };
 
 export const validateRegistrationPostalCode = (country, value) => {
-  if (!value || country !== "España" || /^\d{5}$/.test(value)) return Promise.resolve();
-  return Promise.reject(new Error("En España, el código postal tiene 5 números."));
+  if (!value || country !== "Spain" || /^\d{5}$/.test(value))
+    return Promise.resolve();
+  
+  return Promise.reject(new Error("Spanish postal codes contain 5 digits."));
 };

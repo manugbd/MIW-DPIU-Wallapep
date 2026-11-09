@@ -1,4 +1,4 @@
-import CreateUserComponent from "./components/user/CreateUserComponent";
+import CreateUserComponent from "@/components/users/CreateUserComponent";
 
 export default function RegisterPage() {
 

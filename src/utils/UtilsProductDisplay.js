@@ -1,7 +1,4 @@
-const euroFormat = new Intl.NumberFormat("en-IE", {
-  style: "currency",
-  currency: "EUR",
-});
+import { formatMoney } from "@/utils/UtilsFormat";
 
 export const formatProductPrice = (price) => {
   if (price === null || price === undefined || price === "")
@@ -10,9 +7,8 @@ export const formatProductPrice = (price) => {
   const amount = Number(price);
 
   if (!Number.isFinite(amount)) return "Price not specified";
-  
-  return amount === 0 ? "Free" : euroFormat.format(amount);
+
+  return amount === 0 ? "Free" : formatMoney(amount);
 };
 
-export const getProductImageUrl = (id) =>
-  `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/images/${id}.png`;
+export const getProductImageUrl = (id) => `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/images/${id}.png`;

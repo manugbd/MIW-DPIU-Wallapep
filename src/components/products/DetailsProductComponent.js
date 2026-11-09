@@ -1,3 +1,5 @@
+import SellerReputation from "@/components/users/SellerReputation";
+import PurchaseModal from "@/components/transactions/PurchaseModal";
 import Head from "next/head";
 import Link from "next/link";
 import {
@@ -14,14 +16,25 @@ import {
 import { ArrowLeftOutlined, ShoppingOutlined } from "@ant-design/icons";
 import { useProductDetails } from "@/hooks/useProductDetails";
 import { useProductPurchase } from "@/hooks/useProductPurchase";
-import { formatProductPrice, getProductImageUrl} from "@/utils/UtilsProductDisplay";
+import UserIdentity from "@/components/users/UserIdentity";
+import {
+  formatProductPrice,
+  getProductImageUrl,
+} from "@/utils/UtilsProductDisplay";
 import styles from "@/styles/ProductDetails.module.css";
 
 export default function DetailsProductComponent({ id }) {
-  const details = useProductDetails(id);
-  const { product } = details;
-  const purchase = useProductPurchase({ product, onPurchased: details.markPurchased, onRefresh: details.refresh });
 
+  const details = useProductDetails(id);
+
+  const { product } = details;
+  
+  const purchase = useProductPurchase({
+    product,
+    onPurchased: details.markPurchased,
+    onRefresh: details.refresh,
+  });
+  
   return (
     <section className={styles.page} aria-label="Product details">
       <Link href="/products" className={styles.backLink}>
@@ -29,7 +42,12 @@ export default function DetailsProductComponent({ id }) {
       </Link>
       {details.loading ? (
         <Card>
-          <Skeleton active paragraph={{ rows: 6 }} />
+          <Skeleton
+            active
+            paragraph={{
+              rows: 6,
+            }}
+          />
         </Card>
       ) : details.error ? (
         <Alert
@@ -53,6 +71,9 @@ export default function DetailsProductComponent({ id }) {
                 showIcon
                 role="status"
                 message="Purchase complete"
+                action={
+                  <Link href="/myTransactions">View my transactions</Link>
+                }
                 description={`You bought ${product.title} for ${formatProductPrice(product.price)}. Your transaction reference is #${purchase.transactionId}.`}
               />
             )}
@@ -75,7 +96,10 @@ export default function DetailsProductComponent({ id }) {
                     alt={product.title}
                     fallback="/imageMockup.png"
                     width="100%"
-                    style={{ maxHeight: 420, objectFit: "contain" }}
+                    style={{
+                      maxHeight: 420,
+                      objectFit: "contain",
+                    }}
                   />
                 </Col>
 
@@ -89,6 +113,23 @@ export default function DetailsProductComponent({ id }) {
                   <p className={styles.price}>
                     {formatProductPrice(product.price)}
                   </p>
+                  <div
+                    style={{
+                      marginBottom: 20,
+                    }}
+                  >
+                    <p
+                      style={{
+                        marginBottom: 8,
+                      }}
+                    >
+                      Seller
+                    </p>
+                    <UserIdentity id={product.sellerId} />
+                    <p>
+                      <SellerReputation id={product.sellerId} />
+                    </p>
+                  </div>
                   <h2 className={styles.descriptionHeading}>Description</h2>
                   <p className={styles.description}>
                     {product.description || "No description provided."}
@@ -108,7 +149,7 @@ export default function DetailsProductComponent({ id }) {
                   >
                     {purchase.availability.label}
                   </Button>
-                  
+
                   {!purchase.transactionId && purchase.availability.reason && (
                     <p className={styles.reason}>
                       {purchase.availability.reason}
@@ -118,33 +159,9 @@ export default function DetailsProductComponent({ id }) {
               </Row>
             </Card>
 
-            <Modal
-              title="Confirm purchase"
-              open={purchase.confirmOpen}
-              onOk={purchase.confirmPurchase}
-              onCancel={purchase.closeConfirmation}
-              confirmLoading={purchase.purchasing}
-              okText="Confirm purchase"
-              cancelText="Cancel"
-              cancelButtonProps={{ disabled: purchase.purchasing }}
-              closable={!purchase.purchasing}
-              keyboard={!purchase.purchasing}
-              maskClosable={!purchase.purchasing}
-            >
-              <p>Do you want to buy this product?</p>
-              <p className={styles.confirmTitle}>{product.title}</p>
-              <p className={styles.price}>
-                {formatProductPrice(product.price)}
-              </p>
-              {purchase.error && (
-                <Alert
-                  type="error"
-                  showIcon
-                  role="alert"
-                  message={purchase.error}
-                />
-              )}
-            </Modal>
+            {purchase.confirmOpen && (
+              <PurchaseModal product={product} purchase={purchase} />
+            )}
           </>
         )
       )}

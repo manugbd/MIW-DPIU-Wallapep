@@ -1,146 +1,287 @@
+import { PAGE_WIDTH_BY_ROUTE } from "@/models/PageLayout";
+import Head from "next/head";
+import SiteBreadcrumbs from "@/components/SiteBreadcrumbs";
 import "@/styles/globals.css";
 import Link from "next/link";
-import 'antd/dist/reset.css';
-import { Layout, Menu, Avatar, Typography, Col, Row, notification } from 'antd';
-import { FireOutlined , LoginOutlined } from '@ant-design/icons';
+import "antd/dist/reset.css";
+import { Layout, Menu, Avatar, Typography, Col, Row, notification } from "antd";
+import {
+  HomeOutlined,
+  ShopOutlined,
+  PlusCircleOutlined,
+  ShoppingOutlined,
+  UserAddOutlined,
+  LogoutOutlined,
+  LoginOutlined,
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { usePathname } from "next/navigation";
 import { Provider } from "react-redux";
-import store from "../reducers/store"
+import store from "../reducers/store";
 
 const { Text } = Typography;
 
 export default function App({ Component, pageProps }) {
-    const [api, contextHolder] = notification.useNotification();
+  const [api, contextHolder] = notification.useNotification();
 
-    const pathname = usePathname();
-    let router = useRouter()
-    let [login, setLogin] = useState(false);
-    let [charUser,setCharUser] = useState("a")
+  const pathname = usePathname();
+  let router = useRouter();
+  let [login, setLogin] = useState(false);
+  let [charUser, setCharUser] = useState("a");
 
-    useEffect(() => {
-        checkAll();
-        setCharUser(localStorage.getItem("email")?.charAt(0))
-    }, [])
+  useEffect(() => {
+    checkAll();
+    setCharUser(localStorage.getItem("email")?.charAt(0));
+  }, [pathname]);
 
-    let checkAll = async () => {
-        let isActive = await checkLoginIsActive()
-        checkUserAccess(isActive)
+  let checkAll = async () => {
+    let isActive = await checkLoginIsActive();
+    checkUserAccess(isActive);
+  };
+
+  let checkUserAccess = async (isActive) => {
+    if (!isActive && !["/", "/login", "/register"].includes(pathname)) {
+      router.push("/login");
+    }
+  };
+
+  let checkLoginIsActive = async () => {
+    if (localStorage.getItem("apiKey") == null) {
+      setLogin(false);
+      return;
     }
 
-    let checkUserAccess= async (isActive) => {
-        if (!isActive && !["/", "/login", "/register"].includes(pathname)) {
-            router.push("/login"); 
-        }
+    let response;
+    try {
+      response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/users/isActiveApiKey",
+        {
+          method: "GET",
+          headers: {
+            apikey: localStorage.getItem("apiKey"),
+          },
+        },
+      );
+    } catch {
+      setLogin(false);
+      return false;
     }
 
-    let checkLoginIsActive = async () => {
-        if(localStorage.getItem("apiKey") == null){
-            setLogin(false);
-            return;
-        }
+    if (response.ok) {
+      let jsonData = await response.json();
+      setLogin(jsonData.activeApiKey);
 
-        let response = await fetch(
-            process.env.NEXT_PUBLIC_BACKEND_BASE_URL + "/users/isActiveApiKey",
-            {
-                method: "GET",
-                headers: {
-                    "apikey": localStorage.getItem("apiKey")
-                }
-            });
-
-        if (response.ok) {
-            let jsonData = await response.json();
-            setLogin(jsonData.activeApiKey)
-
-            return(jsonData.activeApiKey)
-        } else {
-            setLogin(false)
-            return (false)
-        }
+      return jsonData.activeApiKey;
+    } else {
+      setLogin(false);
+      return false;
     }
+  };
 
+  let disconnect = async (e) => {
+    e.preventDefault();
+    let response = await fetch(API_BASE_URL + "/users/disconnect", {
+      method: "GET",
+      headers: {
+        apikey: localStorage.getItem("apiKey"),
+      },
+    });
 
-    let disconnect = async (e) => {
-        e.preventDefault();
-        let response = await fetch(
-            process.env.NEXT_PUBLIC_BACKEND_BASE_URL +"/users/disconnect",
-            {
-                method: "GET",
-                headers: {
-                    "apikey": localStorage.getItem("apiKey")
-                }
-            });
-
-        localStorage.removeItem("apiKey");
-        setLogin(false)
-        router.push("/login")
-    }
-
+    localStorage.removeItem("apiKey");
+    setLogin(false);
+    router.push("/login");
+  };
 
   let callBackOnFinishLogin = (loginUser) => {
-    console.log("Cambiado "+loginUser.email);
-    console.log("Cambiado "+loginUser.password);
-  }
+    console.log("Cambiado " + loginUser.email);
+  };
 
   let { Header, Content, Footer } = Layout;
 
   const openNotification = (placement, text, type) => {
-        api[type]({
-            message: 'Notification',
-            description: text,
-            placement,
-        });
-    };
-
+    api[type]({
+      message: "Notification",
+      description: text,
+      placement,
+    });
+  };
 
   return (
     <Provider store={store}>
+      <Head>
+        <title>Wallapep | Buy and sell</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <Layout className="layout" style={{ minHeight: "100vh" }}>
         {contextHolder}
-          <Header>
-            <Row>
-                <Col xs= {18} sm={19} md={20} lg={21} xl = {22}>
-                {!login &&
-                    <Menu theme="dark" mode="horizontal" items={ [
-                        { key:"logo", label: <Link href="/" aria-label="Wallapep home"><img src="/logo.png" alt="Wallapep" width="40" height="40" /></Link>},
-                        { key:"menuHome", label: <Link href="/">Home</Link>},
-                        { key:"menuLogin",  icon: <LoginOutlined/>, label: <Link href="/login">Login</Link>},
-                        { key:"menuRegister",  label: <Link href="/register">Register</Link>},
-                    ]} >
-                    </Menu>
-                }
-                {login &&
-                    <Menu theme="dark" mode="horizontal" items={ [
-                        { key:"logo", label: <Link href="/" aria-label="Wallapep home"><img src="/logo.png" alt="Wallapep" width="40" height="40" /></Link>},
-                        { key:"menuHome", label: <Link href="/">Home</Link>},
-                        { key:"menuProducts",  label: <Link href="/products">Products</Link>},
-                        { key:"menuCreateProduct",  label: <Link href="/createProduct">Sell</Link>},
-                        { key:"menuMyProduct", label: <Link href="/myProducts">My Products</Link> },
-                        { key:"menuDisonnect",  label: <Link href="#" 
-                            onClick={ (e) => { disconnect(e)} } >Disconnect</Link>},
-                    ]} >
-                    </Menu>
-                }
-                </Col>
-                <Col xs= {6} sm={5} md = {4}  lg = {3} xl = {2} style={{display: 'flex', flexDirection: 'row-reverse' }} >
-                    { login ? (
-                        <Avatar size="large" 
-                                style={{ backgroundColor: "#ff0000", verticalAlign: 'middle', marginTop: 12   }}>
-                            { charUser }
-                        </Avatar>
-                    ) : (
-                        <Link href ="/login"> <Text style={{ color:"#ffffff" }}>Login</Text></Link>
-                    )}
-                </Col>
-            </Row>
-          </Header>
-          <Content style={{ padding: "20px clamp(16px, 4vw, 50px)" }}>
-              <Component {...pageProps} isLoggedIn={login} setLogin={setLogin} openNotification={openNotification} />
-          </Content>
-          <Footer style={{ textAlign: "center" }}> Wallapep </Footer>
+        <Header className="site-header">
+          <Row>
+            <Col xs={18} sm={19} md={20} lg={21} xl={22}>
+              {!login && (
+                <Menu
+                  selectedKeys={[
+                    {
+                      "/": "menuHome",
+                      "/products": "menuProducts",
+                      "/createProduct": "menuCreateProduct",
+                      "/myProducts": "menuMyProduct",
+                      "/myTransactions": "menuMyTransactions",
+                      "/login": "menuLogin",
+                      "/register": "menuRegister",
+                    }[pathname],
+                  ]}
+                  theme="dark"
+                  mode="horizontal"
+                  items={[
+                    {
+                      key: "logo",
+                      label: (
+                        <Link href="/" aria-label="Wallapep home">
+                          <img
+                            src="/logo.png"
+                            alt="Wallapep"
+                            width="40"
+                            height="40"
+                          />
+                        </Link>
+                      ),
+                    },
+                    {
+                      key: "menuHome",
+                      icon: <HomeOutlined />,
+                      label: <Link href="/">Home</Link>,
+                    },
+                    {
+                      key: "menuLogin",
+                      icon: <LoginOutlined />,
+                      label: <Link href="/login">Login</Link>,
+                    },
+                    {
+                      key: "menuRegister",
+                      icon: <UserAddOutlined />,
+                      label: <Link href="/register">Register</Link>,
+                    },
+                  ]}
+                ></Menu>
+              )}
+              {login && (
+                <Menu
+                  selectedKeys={[
+                    {
+                      "/": "menuHome",
+                      "/products": "menuProducts",
+                      "/createProduct": "menuCreateProduct",
+                      "/myProducts": "menuMyProduct",
+                      "/myTransactions": "menuMyTransactions",
+                      "/login": "menuLogin",
+                      "/register": "menuRegister",
+                    }[pathname],
+                  ]}
+                  theme="dark"
+                  mode="horizontal"
+                  items={[
+                    {
+                      key: "logo",
+                      label: (
+                        <Link href="/" aria-label="Wallapep home">
+                          <img
+                            src="/logo.png"
+                            alt="Wallapep"
+                            width="40"
+                            height="40"
+                          />
+                        </Link>
+                      ),
+                    },
+                    {
+                      key: "menuHome",
+                      icon: <HomeOutlined />,
+                      label: <Link href="/">Home</Link>,
+                    },
+                    {
+                      key: "menuProducts",
+                      icon: <ShoppingOutlined />,
+                      label: <Link href="/products">Products</Link>,
+                    },
+                    {
+                      key: "menuCreateProduct",
+                      icon: <PlusCircleOutlined />,
+                      label: <Link href="/createProduct">Sell</Link>,
+                    },
+                    {
+                      key: "menuMyProduct",
+                      icon: <ShopOutlined />,
+                      label: <Link href="/myProducts">My Products</Link>,
+                    },
+                    {
+                      key: "menuMyTransactions",
+                      icon: <ShoppingOutlined />,
+                      label: (
+                        <Link href="/myTransactions">My transactions</Link>
+                      ),
+                    },
+                    {
+                      key: "menuDisonnect",
+                      icon: <LogoutOutlined />,
+                      label: (
+                        <Link
+                          href="#"
+                          onClick={(e) => {
+                            disconnect(e);
+                          }}
+                        >
+                          Disconnect
+                        </Link>
+                      ),
+                    },
+                  ]}
+                ></Menu>
+              )}
+            </Col>
+            <Col
+              xs={6}
+              sm={5}
+              md={4}
+              lg={3}
+              xl={2}
+              style={{ display: "flex", flexDirection: "row-reverse" }}
+            >
+              {login ? (
+                <Avatar
+                  size="large"
+                  style={{
+                    backgroundColor: "var(--primary)",
+                    verticalAlign: "middle",
+                    marginTop: 12,
+                  }}
+                >
+                  {charUser}
+                </Avatar>
+              ) : (
+                <Link href="/login">
+                  {" "}
+                  <Text style={{ color: "var(--surface)" }}>Login</Text>
+                </Link>
+              )}
+            </Col>
+          </Row>
+        </Header>
+        <Content className="site-content">
+          <div
+            className={`page-shell page-shell--${PAGE_WIDTH_BY_ROUTE[router.pathname] || "wide"}`}
+          >
+            <SiteBreadcrumbs />
+            <Component
+              {...pageProps}
+              isLoggedIn={login}
+              setLogin={setLogin}
+              openNotification={openNotification}
+            />
+          </div>
+        </Content>
+        <Footer style={{ textAlign: "center" }}> Wallapep </Footer>
       </Layout>
     </Provider>
-  )
+  );
 }

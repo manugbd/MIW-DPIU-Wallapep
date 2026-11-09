@@ -1,4 +1,4 @@
-import ListMyProductsComponent from "./components/products/ListMyProductsComponent";
+import ListMyProductsComponent from "@/components/products/ListMyProductsComponent";
 
 export default function MyProductsPage() {
 

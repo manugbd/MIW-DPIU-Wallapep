@@ -1,0 +1,40 @@
+.page {
+  --text-secondary: var(--text-muted);
+  width: 100%;
+  margin-inline: auto;
+  color: var(--text-heading);
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 16px 0 24px;
+}
+.heading h1 {
+  font-size: 30px;
+  font-weight: 600;
+  margin: 0;
+}
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-block: 8px;
+}
+.publicDetails {
+  margin-top: 24px;
+}
+.section {
+  margin-top: 32px;
+}
+.section h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+.note {
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}

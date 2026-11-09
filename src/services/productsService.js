@@ -1,18 +1,15 @@
 const productRequest = async (path, options = {}) => {
   let response;
-
   try {
-    response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${path}`,
-      {
-        ...options,
-        headers: { ...options.headers, apikey: localStorage.getItem("apiKey") },
+    response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        ...options.headers,
+        apikey: localStorage.getItem("apiKey"),
       },
-    );
+    });
   } catch {
-    throw new Error(
-      "Could not reach the server. Check your connection and try again.",
-    );
+    throw new Error("Could not reach the server. Check your connection and try again.");
   }
 
   const body = await response.json().catch(() => ({}));
@@ -27,13 +24,16 @@ const productRequest = async (path, options = {}) => {
         .join(" ") ||
         "Could not save your changes. Review the highlighted fields and try again.",
     );
+
     error.fieldErrors = errors
       .filter((item) => item.field)
       .map((item) => ({
         name: item.field,
         errors: [item.msg || "Check this value."],
       }));
+
     error.status = response.status;
+
     throw error;
   }
 
@@ -43,7 +43,9 @@ const productRequest = async (path, options = {}) => {
 export const createProduct = (values) =>
   productRequest("/products", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       title: values.title.trim(),
       description: values.description?.trim() || "",
@@ -53,11 +55,14 @@ export const createProduct = (values) =>
   });
 
 export const getProducts = async (signal) => {
-  const products = await productRequest("/products", { method: "GET", signal });
+  const products = await productRequest("/products", {
+    method: "GET",
+    signal,
+  });
 
   if (!Array.isArray(products))
     throw new Error("The server returned an unexpected product list. Please try again.");
-  
+
   return products;
 };
 
@@ -72,13 +77,52 @@ export const getProduct = async (id, signal) => {
   return product;
 };
 
+export const getProductsForSaleByUser = async (userId, signal) => {
+  const products = await productRequest(
+    `/products?sellerId=${encodeURIComponent(userId)}`,
+    {
+      method: "GET",
+      signal,
+    },
+  );
+
+  if (!Array.isArray(products))
+    throw new Error("This user's products could not be loaded.");
+
+  return products.filter((product) => product.buyerId == null);
+};
+
 export const uploadProductImage = (productId, image) => {
   const body = new FormData();
-
   body.append("image", image);
-
+  
   return productRequest(`/products/${productId}/image`, {
     method: "POST",
     body,
   });
 };
+export const updateProduct = async (id, values) => {
+  await productRequest(`/products/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      title: values.title.trim(),
+      description: values.description?.trim() || "",
+      price: values.price,
+      category: values.category,
+    }),
+  });
+  return {
+    productId: id,
+  };
+};
+export const getMyProducts = () =>
+  productRequest("/products/own/", {
+    method: "GET",
+  });
+export const deleteProduct = (id) =>
+  productRequest(`/products/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });

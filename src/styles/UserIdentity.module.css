@@ -1,0 +1,41 @@
+.identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+.avatar {
+  flex-shrink: 0;
+  background: var(--avatar-bg);
+  color: var(--avatar-text);
+}
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.email {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.preview {
+  width: 260px;
+  max-width: calc(100vw - 64px);
+  overflow-wrap: anywhere;
+}
+.preview p {
+  margin: 8px 0;
+  color: var(--text-muted);
+}
+.profileLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.identity:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
