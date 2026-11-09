@@ -58,13 +58,16 @@ export const DOCUMENT_TYPES = [
 ];
 
 export const DOCUMENT_FORMATS = {
-  DNI: { placeholder: "e.g. 12345678Z", maxLength: 9 },
+  DNI: { placeholder: "12345678", maxLength: 8 },
   NIE: { placeholder: "e.g. X1234567L", maxLength: 9 },
   Pasaporte: { placeholder: "Passport number", maxLength: 20 },
   Otro: { placeholder: "Document number", maxLength: 50 },
 };
 
 const NIF_LETTERS = "TRWAGMYFPDXBNJZSQVHLCKE";
+export const getDniCheckLetter = (digits) =>
+  /^[0-9]{8}$/.test(digits) ? NIF_LETTERS[Number(digits) % 23] : "";
+
 const DOCUMENT_PATTERNS = {
   DNI: /^\d{8}[A-Z]$/,
   NIE: /^[XYZ]\d{7}[A-Z]$/,
@@ -74,7 +77,10 @@ const DOCUMENT_PATTERNS = {
 
 export const formatDocumentNumber = (type, value) => {
   const normalized = value.toUpperCase().replace(/\s/g, "");
-  if (type === "DNI") return normalized.replace(/[^0-9A-Z]/g, "").slice(0, 9);
+  if (type === "DNI") {
+    const digits = normalized.replace(/[^0-9]/g, "").slice(0, 8);
+    return digits + getDniCheckLetter(digits);
+  }
   if (type === "NIE")
     return normalized.replace(/[^0-9XYZA-Z]/g, "").slice(0, 9);
   return normalized.slice(0, DOCUMENT_FORMATS[type]?.maxLength || 50);

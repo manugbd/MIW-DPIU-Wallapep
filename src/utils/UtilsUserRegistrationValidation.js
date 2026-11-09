@@ -2,7 +2,7 @@ import { getDocumentNumberProblem } from "./UtilsUser";
 import { validateDateNotInFuture } from "./UtilsValidations";
 
 const DOCUMENT_MESSAGES = {
-  DNI: "Format: 8 digits and a letter, for example 12345678Z.",
+  DNI: "Enter all 8 digits. The check letter is calculated automatically.",
   NIE: "Format: X, Y or Z, 7 digits and a letter, for example X1234567L.",
   Pasaporte: "Enter 5 to 20 letters or digits.",
   Otro: "Enter 3 to 50 letters, digits or hyphens.",

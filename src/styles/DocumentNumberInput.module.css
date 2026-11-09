@@ -1,0 +1,18 @@
+.dni {
+  width: auto;
+  font-family: monospace;
+}
+.dni :global(input.ant-input) {
+  width: 8ch;
+  flex: 0 0 8ch;
+  font-family: inherit;
+}
+.dni :global(.ant-input-suffix) {
+  margin-inline-start: 0;
+}
+.letter {
+  display: inline-block;
+  min-width: 1ch;
+  font-weight: 600;
+  color: var(--text-heading);
+}

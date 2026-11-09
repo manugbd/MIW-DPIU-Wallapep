@@ -1,3 +1,4 @@
+import DocumentNumberInput from "@/components/forms/DocumentNumberInput";
 import { UserAddOutlined } from "@ant-design/icons";
 import { BIRTHDAY_INPUT_FORMATS } from "@/utils/UtilsDates";
 import AddressFields from "@/components/forms/AddressFields";
@@ -17,11 +18,7 @@ import {
   Space,
   Typography,
 } from "antd";
-import {
-  DOCUMENT_FORMATS,
-  DOCUMENT_TYPES,
-  formatDocumentNumber,
-} from "@/utils/UtilsUser";
+import { DOCUMENT_TYPES, getDniCheckLetter } from "@/utils/UtilsUser";
 import {
   validateRegistrationBirthday,
   validateRegistrationDocument,
@@ -37,6 +34,8 @@ const CreateUserComponent = ({ openNotification }) => {
   const [serverError, setServerError] = useState("");
 
   const documentType = Form.useWatch("documentIdentity", form);
+  const documentNumber = Form.useWatch("documentNumber", form) || "";
+  const dniLetter = getDniCheckLetter(documentNumber.slice(0, 8));
 
   const clickCreate = async (values) => {
     setSubmitting(true);
@@ -248,6 +247,18 @@ const CreateUserComponent = ({ openNotification }) => {
                           label="Document number"
                           name="documentNumber"
                           dependencies={["documentIdentity"]}
+                          hasFeedback={documentType === "DNI"}
+                          extra={
+                            documentType === "DNI" ? (
+                              <span role="status" aria-live="polite">
+                                {dniLetter
+                                  ? "Check letter " +
+                                    dniLetter +
+                                    " calculated automatically."
+                                  : "Enter 8 digits. The check letter is calculated automatically and cannot be edited."}
+                              </span>
+                            ) : undefined
+                          }
                           rules={[
                             {
                               validator: (_, value) =>
@@ -258,23 +269,7 @@ const CreateUserComponent = ({ openNotification }) => {
                             },
                           ]}
                         >
-                          <Input
-                            allowClear
-                            maxLength={50}
-                            autoComplete="off"
-                            placeholder={
-                              DOCUMENT_FORMATS[documentType]?.placeholder ||
-                              "Document number"
-                            }
-                            onChange={(event) => {
-                              const type =
-                                form.getFieldValue("documentIdentity");
-                              form.setFieldValue(
-                                "documentNumber",
-                                formatDocumentNumber(type, event.target.value),
-                              );
-                            }}
-                          />
+                          <DocumentNumberInput documentType={documentType} />
                         </Form.Item>
                       </Col>
                     </Row>
